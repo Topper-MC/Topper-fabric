@@ -3,25 +3,22 @@
   "id": "${id}",
   "version": "${version}",
   "name": "${name}",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "description": "Another leaderboard mod for Fabric",
   "authors": [
-    "Me!"
+    "HSGamer"
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
+    "homepage": "https://github.com/Topper-MC",
+    "sources": "https://github.com/Topper-MC/Topper-fabric"
   },
-  "license": "CC0-1.0",
-  "icon": "assets/template/icon.png",
-  "environment": "*",
+  "license": "MIT",
+  "icon": "assets/topper/icon.png",
+  "environment": "server",
   "entrypoints": {
     "main": [
-      "com.example.TemplateMod"
+      "me.hsgamer.topper.fabric.TopperFabric"
     ]
   },
-  "mixins": [
-    "template.mixins.json"
-  ],
   "depends": {
     "fabricloader": ">=0.16",
     "minecraft": "${minecraft}"

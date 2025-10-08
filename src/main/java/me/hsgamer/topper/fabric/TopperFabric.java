@@ -1,17 +1,27 @@
-package com.example;
+package me.hsgamer.topper.fabric;
 
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TemplateMod implements ModInitializer {
+public class TopperFabric implements ModInitializer {
     // This logger is used to write text to the console and the log file.
     // It is considered best practice to use your mod id as the logger's name.
     // That way, it's clear which mod wrote info, warnings, and errors.
     public static final Logger LOGGER = LoggerFactory.getLogger("template");
     public static final String VERSION = /*$ mod_version*/ "0.1.0";
     public static final String MINECRAFT = /*$ minecraft*/ "1.21.9";
+
+    /**
+     * Adapts to the {@link Identifier} changes introduced in 1.21.
+     */
+    public static Identifier id(String namespace, String path) {
+        //? if <1.21 {
+        /*return new Identifier(namespace, path);
+         *///?} else
+        return Identifier.of(namespace, path);
+    }
 
     @Override
     public void onInitialize() {
@@ -26,15 +36,5 @@ public class TemplateMod implements ModInitializer {
 
         //? if fapi: <0.100
         /*LOGGER.info("Fabric API is old on this version");*/
-    }
-
-    /**
-     * Adapts to the {@link Identifier} changes introduced in 1.21.
-     */
-    public static Identifier id(String namespace, String path) {
-        //? if <1.21 {
-        /*return new Identifier(namespace, path);
-        *///?} else
-        return Identifier.of(namespace, path);
     }
 }
