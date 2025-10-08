@@ -1,6 +1,7 @@
 plugins {
     `maven-publish`
     id("fabric-loom")
+    id("com.gradleup.shadow") version "9.2.2"
 //    id("me.modmuss50.mod-publish-plugin")
 }
 
@@ -34,6 +35,9 @@ dependencies {
     modImplementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
 
     fapi("fabric-lifecycle-events-v1", "fabric-resource-loader-v0", "fabric-content-registries-v0")
+
+    // TODO: Find a reason why the full library is not included
+    include("me.hsgamer:topper-template-top-player-number:${property("deps.topper")}")
 }
 
 loom {
