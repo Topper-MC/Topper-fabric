@@ -18,6 +18,9 @@ repositories {
     }
     strictMaven("https://www.cursemaven.com", "CurseForge", "curse.maven")
     strictMaven("https://api.modrinth.com/maven", "Modrinth", "maven.modrinth")
+    maven("https://maven.fzzyhmstrs.me/") { name = "FzzyMaven" }
+    maven("https://maven.nucleoid.xyz/") { name = "Nucleoid" }
+    maven("https://repo.alessiodp.com/releases/") { name = "AlessioDP" }
 }
 
 /**
@@ -28,8 +31,17 @@ repositories {
  * I find it difficult for any newcomer to transfer knowledge from Maven to Gradle with its nonsense syntax that is called "flexibility" and all the hacks that are likely came out of nowhere.
  * Still, there is no "superior" build tool, just one that one developer finds themselves convenient using.
  */
-val transitiveInclude: Configuration by configurations.creating {
-    // Exclude dependencies here
+val transitiveInclude: Configuration by configurations.creating
+
+fun DependencyHandler.transitiveImpl(
+    notation: Any,
+    configure: (ExternalModuleDependency.() -> Unit)? = null
+) {
+    val dep = implementation(notation)
+    if (dep is ExternalModuleDependency && configure != null) {
+        dep.configure()
+    }
+    transitiveInclude.dependencies.add(dep!!)
 }
 
 dependencies {
@@ -45,9 +57,21 @@ dependencies {
     mappings("net.fabricmc:yarn:${property("deps.yarn")}:v2")
     modImplementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
 
-    fapi("fabric-lifecycle-events-v1", "fabric-resource-loader-v0", "fabric-content-registries-v0")
+    fapi("fabric-lifecycle-events-v1", "fabric-networking-api-v1")
 
-    transitiveInclude(implementation("me.hsgamer:topper-template-top-player-number:${property("deps.topper")}")!!)
+    modImplementation("me.fzzyhmstrs:fzzy_config:${property("deps.fuzzy_config")}+${stonecutter.current.version}")
+    modImplementation("eu.pb4:placeholder-api:${property("deps.text_placeholder_api")}+${stonecutter.current.version}")
+    api("io.github.miniplaceholders:miniplaceholders-api:${property("deps.mini_placeholders")}")
+    include(implementation("net.byteflux:libby-core:${property("deps.libby")}")!!)
+
+    transitiveImpl(implementation("me.hsgamer:topper-template-top-player-number:${property("deps.topper")}")!!)
+    transitiveImpl(implementation("me.hsgamer:topper-storage-flat-properties:${property("deps.topper")}")!!)
+    transitiveImpl(implementation("me.hsgamer:topper-storage-sql-mysql:${property("deps.topper")}")!!) {
+        exclude("com.mysql", "mysql-connector-j")
+    }
+    transitiveImpl(implementation("me.hsgamer:topper-storage-sql-sqlite:${property("deps.topper")}")!!) {
+        exclude("org.xerial", "sqlite-jdbc")
+    }
 
     transitiveInclude.resolvedConfiguration.resolvedArtifacts.forEach {
         include(it.moduleVersion.id.toString())
