@@ -59,7 +59,6 @@ dependencies {
 
     fapi("fabric-lifecycle-events-v1", "fabric-networking-api-v1")
 
-    modImplementation("me.fzzyhmstrs:fzzy_config:${property("deps.fuzzy_config")}+${stonecutter.current.version}")
     modImplementation("eu.pb4:placeholder-api:${property("deps.text_placeholder_api")}+${stonecutter.current.version}")
     api("io.github.miniplaceholders:miniplaceholders-api:${property("deps.mini_placeholders")}")
     include(implementation("net.byteflux:libby-core:${property("deps.libby")}")!!)
