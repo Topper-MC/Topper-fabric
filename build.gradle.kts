@@ -64,6 +64,8 @@ dependencies {
     api("io.github.miniplaceholders:miniplaceholders-api:${property("deps.mini_placeholders")}")
     include(implementation("net.byteflux:libby-core:${property("deps.libby")}")!!)
 
+    include(implementation("me.hsgamer:hscore-common:4.6.0")!!)
+
     transitiveImpl(implementation("me.hsgamer:topper-template-top-player-number:${property("deps.topper")}")!!)
     transitiveImpl(implementation("me.hsgamer:topper-storage-flat-properties:${property("deps.topper")}")!!)
     transitiveImpl(implementation("me.hsgamer:topper-storage-sql-mysql:${property("deps.topper")}")!!) {
