@@ -63,16 +63,22 @@ dependencies {
     api("io.github.miniplaceholders:miniplaceholders-api:${property("deps.mini_placeholders")}")
     include(implementation("net.byteflux:libby-core:${property("deps.libby")}")!!)
 
-    include(implementation("me.hsgamer:hscore-common:4.6.0")!!)
+    include(modApi("me.hsgamer:hscore-common:4.6.0")!!)
+    transitiveImpl("me.hsgamer:hscore-config-proxy:4.6.0")
+    transitiveImpl("me.hsgamer:hscore-config-configurate:4.6.0")
+    include(modApi("org.spongepowered:configurate-gson:4.2.0") {
+        exclude("com.google.code.gson") // Use Minecraft's gson
+    })
 
-    transitiveImpl(implementation("me.hsgamer:topper-template-top-player-number:${property("deps.topper")}")!!)
-    transitiveImpl(implementation("me.hsgamer:topper-storage-flat-properties:${property("deps.topper")}")!!)
-    transitiveImpl(implementation("me.hsgamer:topper-storage-sql-mysql:${property("deps.topper")}")!!) {
+    transitiveImpl("me.hsgamer:topper-template-top-player-number:${property("deps.topper")}")
+    transitiveImpl("me.hsgamer:topper-storage-flat-properties:${property("deps.topper")}")
+    transitiveImpl("me.hsgamer:topper-storage-sql-mysql:${property("deps.topper")}") {
         exclude("com.mysql", "mysql-connector-j")
     }
-    transitiveImpl(implementation("me.hsgamer:topper-storage-sql-sqlite:${property("deps.topper")}")!!) {
+    transitiveImpl("me.hsgamer:topper-storage-sql-sqlite:${property("deps.topper")}") {
         exclude("org.xerial", "sqlite-jdbc")
     }
+    transitiveImpl("me.hsgamer:topper-storage-sql-config:${property("deps.topper")}")
 
     transitiveInclude.resolvedConfiguration.resolvedArtifacts.forEach {
         include(it.moduleVersion.id.toString())

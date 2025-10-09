@@ -8,17 +8,15 @@ import me.hsgamer.topper.template.topplayernumber.storage.DataStorageSupplier;
 import java.util.Map;
 
 public class FabricTopTemplateSettings implements TopPlayerNumberTemplate.Settings {
-    private final TopperFabric mod;
     private final FabricDataStorageSupplierSettings dataStorageSupplierSettings;
 
     public FabricTopTemplateSettings(TopperFabric mod) {
-        this.mod = mod;
         this.dataStorageSupplierSettings = new FabricDataStorageSupplierSettings(mod);
     }
 
     @Override
     public String storageType() {
-        return "";
+        return TopperFabric.MAIN_CONFIG.getStorageType();
     }
 
     @Override
@@ -28,36 +26,36 @@ public class FabricTopTemplateSettings implements TopPlayerNumberTemplate.Settin
 
     @Override
     public Map<String, NumberTopHolder.Settings> holders() {
-        return Map.of();
+        return TopperFabric.MAIN_CONFIG.getHolders();
     }
 
     @Override
     public int taskSaveDelay() {
-        return 0;
+        return TopperFabric.MAIN_CONFIG.getTaskSaveDelay();
     }
 
     @Override
     public int taskSaveEntryPerTick() {
-        return 0;
+        return TopperFabric.MAIN_CONFIG.getTaskSaveEntryPerTick();
     }
 
     @Override
     public int taskUpdateEntryPerTick() {
-        return 0;
+        return TopperFabric.MAIN_CONFIG.getTaskUpdateEntryPerTick();
     }
 
     @Override
     public int taskUpdateDelay() {
-        return 0;
+        return TopperFabric.MAIN_CONFIG.getTaskUpdateDelay();
     }
 
     @Override
     public int taskUpdateSetDelay() {
-        return 0;
+        return TopperFabric.MAIN_CONFIG.getTaskUpdateSetDelay();
     }
 
     @Override
     public int taskUpdateMaxSkips() {
-        return 0;
+        return TopperFabric.MAIN_CONFIG.getTaskUpdateMaxSkips();
     }
 }
