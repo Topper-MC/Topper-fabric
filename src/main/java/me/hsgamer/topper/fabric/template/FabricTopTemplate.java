@@ -12,6 +12,7 @@ import me.hsgamer.topper.storage.sql.sqlite.NewSqliteDataStorageSupplier;
 import me.hsgamer.topper.template.topplayernumber.TopPlayerNumberTemplate;
 import me.hsgamer.topper.template.topplayernumber.storage.DataStorageSupplier;
 import me.hsgamer.topper.value.core.ValueProvider;
+import net.minecraft.server.PlayerConfigEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.Nullable;
 
@@ -70,8 +71,12 @@ public class FabricTopTemplate extends TopPlayerNumberTemplate {
 
     @Override
     public String getName(UUID uuid) {
-        // TODO: Figure out a way to get offline player name
-        return "";
+        ServerPlayerEntity player = mod.getServer().getPlayerManager().getPlayer(uuid);
+        if (player != null) {
+            return player.getGameProfile().name();
+        }
+        Optional<PlayerConfigEntry> playerConfigEntryOptional = mod.getServer().getApiServices().nameToIdCache().getByUuid(uuid);
+        return playerConfigEntryOptional.map(PlayerConfigEntry::name).orElse(null);
     }
 
     @Override
