@@ -3,6 +3,7 @@ package me.hsgamer.topper.fabric;
 import me.hsgamer.hscore.config.configurate.ConfigurateConfig;
 import me.hsgamer.hscore.config.proxy.ConfigGenerator;
 import me.hsgamer.topper.fabric.config.MainConfig;
+import me.hsgamer.topper.fabric.template.FabricTopTemplate;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
@@ -22,10 +23,12 @@ public class TopperFabric implements ModInitializer {
             GsonConfigurationLoader.builder().indent(2)
     ));
 
+    private FabricTopTemplate template;
     private MinecraftServer server;
 
     @Override
     public void onInitialize() {
+        template = new FabricTopTemplate(this);
         ServerLifecycleEvents.SERVER_STARTING.register(this::onServerStart);
         ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStop);
     }
@@ -36,9 +39,11 @@ public class TopperFabric implements ModInitializer {
 
     private void onServerStart(MinecraftServer server) {
         this.server = server;
+        template.enable();
     }
 
     private void onServerStop(MinecraftServer server) {
+        template.disable();
         this.server = null;
     }
 }

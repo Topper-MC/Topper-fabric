@@ -66,6 +66,7 @@ dependencies {
     include(modApi("me.hsgamer:hscore-common:4.6.0")!!)
     transitiveImpl("me.hsgamer:hscore-config-proxy:4.6.0")
     transitiveImpl("me.hsgamer:hscore-config-configurate:4.6.0")
+    transitiveImpl("me.hsgamer:hscore-database-client-java:4.6.0")
     include(modApi("org.spongepowered:configurate-gson:4.2.0") {
         exclude("com.google.code.gson") // Use Minecraft's gson
     })
