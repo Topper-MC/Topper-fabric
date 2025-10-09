@@ -13,7 +13,7 @@ public record FabricDataStorageSupplierSettings(TopperFabric mod) implements Dat
     @Override
     public SqlDatabaseSetting databaseSetting() {
         return new SqlDatabaseConfig("topper", new ConfigurateConfig(
-                TopperFabric.CONFIG_FOLDER.resolve("config.json").toFile(),
+                TopperFabric.CONFIG_FOLDER.resolve("database.json").toFile(),
                 GsonConfigurationLoader.builder().indent(2)
         ));
     }
