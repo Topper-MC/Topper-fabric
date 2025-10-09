@@ -1,7 +1,6 @@
 plugins {
     `maven-publish`
     id("fabric-loom")
-    id("com.gradleup.shadow") version "9.2.2"
 //    id("me.modmuss50.mod-publish-plugin")
 }
 
@@ -21,6 +20,18 @@ repositories {
     strictMaven("https://api.modrinth.com/maven", "Modrinth", "maven.modrinth")
 }
 
+/**
+ * Courtesy to jakobkmar for the hack to include transitive dependencies: https://gist.github.com/jakobkmar/3c7e68ff57957d647a37ed568e5068c7
+ *
+ * To be honest, I don't know why there is no official documentation on the FabricMC wiki to support this.
+ * And the way to use shadow to shade the library causes an issue with Fabric Loom (include all runtime artifacts), which I still haven't found any solution to this, nor any official tutorial about this.
+ * I find it difficult for any newcomer to transfer knowledge from Maven to Gradle with its nonsense syntax that is called "flexibility" and all the hacks that are likely came out of nowhere.
+ * Still, there is no "superior" build tool, just one that one developer finds themselves convenient using.
+ */
+val transitiveInclude: Configuration by configurations.creating {
+    // Exclude dependencies here
+}
+
 dependencies {
     /**
      * Fetches only the required Fabric API modules to not waste time downloading all of them for each version.
@@ -36,8 +47,11 @@ dependencies {
 
     fapi("fabric-lifecycle-events-v1", "fabric-resource-loader-v0", "fabric-content-registries-v0")
 
-    // TODO: Find a reason why the full library is not included
-    include("me.hsgamer:topper-template-top-player-number:${property("deps.topper")}")
+    transitiveInclude(implementation("me.hsgamer:topper-template-top-player-number:${property("deps.topper")}")!!)
+
+    transitiveInclude.resolvedConfiguration.resolvedArtifacts.forEach {
+        include(it.moduleVersion.id.toString())
+    }
 }
 
 loom {
