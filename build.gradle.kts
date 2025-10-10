@@ -42,6 +42,17 @@ fun DependencyHandler.transitiveImpl(
     transitiveInclude.dependencies.add(dep!!)
 }
 
+fun DependencyHandler.transitiveApi(
+    notation: Any,
+    configure: (ExternalModuleDependency.() -> Unit)? = null
+) {
+    val dep = api(notation)
+    if (dep is ExternalModuleDependency && configure != null) {
+        dep.configure()
+    }
+    transitiveInclude.dependencies.add(dep!!)
+}
+
 dependencies {
     /**
      * Fetches only the required Fabric API modules to not waste time downloading all of them for each version.
@@ -63,21 +74,21 @@ dependencies {
 
     include(api("me.hsgamer:hscore-common:${property("deps.hscore")}")!!)
     include(api("me.hsgamer:hscore-builder:${property("deps.hscore")}")!!)
-    transitiveImpl("me.hsgamer:hscore-config-proxy:${property("deps.hscore")}")
-    transitiveImpl("me.hsgamer:hscore-config-configurate:${property("deps.hscore")}")
-    transitiveImpl("me.hsgamer:hscore-database-client-java:${property("deps.hscore")}")
-    transitiveImpl("org.spongepowered:configurate-gson:${property("deps.configurate")}") {
+    transitiveApi("me.hsgamer:hscore-config-proxy:${property("deps.hscore")}")
+    transitiveApi("me.hsgamer:hscore-config-configurate:${property("deps.hscore")}")
+    transitiveApi("me.hsgamer:hscore-database-client-java:${property("deps.hscore")}")
+    transitiveApi("org.spongepowered:configurate-gson:${property("deps.configurate")}") {
         exclude("com.google.code.gson") // Use Minecraft's gson
     }
 
-    transitiveImpl("me.hsgamer:topper-template-top-player-number:${property("deps.topper")}")
-    transitiveImpl("me.hsgamer:topper-storage-flat-properties:${property("deps.topper")}")
-    transitiveImpl("me.hsgamer:topper-storage-sql-config:${property("deps.topper")}")
+    transitiveApi("me.hsgamer:topper-template-top-player-number:${property("deps.topper")}")
+    transitiveApi("me.hsgamer:topper-storage-flat-properties:${property("deps.topper")}")
+    transitiveApi("me.hsgamer:topper-storage-sql-config:${property("deps.topper")}")
 
-    transitiveImpl("me.hsgamer:topper-storage-sql-mysql:${property("deps.topper")}") {
+    transitiveApi("me.hsgamer:topper-storage-sql-mysql:${property("deps.topper")}") {
         exclude("com.mysql", "mysql-connector-j")
     }
-    transitiveImpl("me.hsgamer:topper-storage-sql-sqlite:${property("deps.topper")}") {
+    transitiveApi("me.hsgamer:topper-storage-sql-sqlite:${property("deps.topper")}") {
         exclude("org.xerial", "sqlite-jdbc")
     }
 
