@@ -75,9 +75,12 @@ dependencies {
     transitiveImpl("me.hsgamer:topper-storage-flat-properties:${property("deps.topper")}")
     transitiveImpl("me.hsgamer:topper-storage-sql-config:${property("deps.topper")}")
 
-    // TODO: Load MYSQL and SQLITE at runtime
-    transitiveImpl("me.hsgamer:topper-storage-sql-mysql:${property("deps.topper")}")
-    transitiveImpl("me.hsgamer:topper-storage-sql-sqlite:${property("deps.topper")}")
+    transitiveImpl("me.hsgamer:topper-storage-sql-mysql:${property("deps.topper")}") {
+        exclude("com.mysql", "mysql-connector-j")
+    }
+    transitiveImpl("me.hsgamer:topper-storage-sql-sqlite:${property("deps.topper")}") {
+        exclude("org.xerial", "sqlite-jdbc")
+    }
 
     transitiveInclude.resolvedConfiguration.resolvedArtifacts.forEach {
         include(it.moduleVersion.id.toString())

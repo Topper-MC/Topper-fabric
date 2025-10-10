@@ -31,31 +31,46 @@ public class FabricTopTemplate extends TopPlayerNumberTemplate {
 
     @Override
     public DataStorageSupplier getDataStorageSupplier(String type, DataStorageSupplier.Settings setting) {
-        return switch (type.toLowerCase(Locale.ROOT)) {
-            case "mysql" -> {
+        if (type.toLowerCase(Locale.ROOT).equals("mysql")) {
+            try {
+                Class.forName("com.mysql.jdbc.Driver");
                 MySqlDataStorageSupplier mySqlDataStorageSupplier = new MySqlDataStorageSupplier(setting.databaseSetting(), JavaSqlClient::new);
-                yield new DataStorageSupplier() {
+                return new DataStorageSupplier() {
                     @Override
                     public <K, V> DataStorage<K, V> getStorage(String name, FlatValueConverter<K> keyConverter, FlatValueConverter<V> valueConverter, SqlValueConverter<K> sqlKeyConverter, SqlValueConverter<V> sqlValueConverter) {
                         return mySqlDataStorageSupplier.getStorage(name, sqlKeyConverter, sqlValueConverter);
                     }
                 };
+            } catch (ClassNotFoundException ex) {
+                TopperFabric.LOGGER.warn("""
+                        You set your database to be MYSQL but no driver is found.
+                        You must install a driver to use this database type.
+                        Recommended link: https://modrinth.com/plugin/mysql-jdbc
+                        """);
             }
-            case "sqlite" -> {
+        } else if (type.toLowerCase(Locale.ROOT).equals("sqlite")) {
+            try {
+                Class.forName("org.sqlite.JDBC");
                 NewSqliteDataStorageSupplier newSqliteDataStorageSupplier = new NewSqliteDataStorageSupplier(setting.baseFolder(), setting.databaseSetting(), JavaSqlClient::new);
-                yield new DataStorageSupplier() {
+                return new DataStorageSupplier() {
                     @Override
                     public <K, V> DataStorage<K, V> getStorage(String name, FlatValueConverter<K> keyConverter, FlatValueConverter<V> valueConverter, SqlValueConverter<K> sqlKeyConverter, SqlValueConverter<V> sqlValueConverter) {
                         return newSqliteDataStorageSupplier.getStorage(name, sqlKeyConverter, sqlValueConverter);
                     }
                 };
+            } catch (ClassNotFoundException ex) {
+                TopperFabric.LOGGER.warn("""
+                        You set your database to be SQLITE but no driver is found.
+                        You must install a driver to use this database type.
+                        Recommended link: https://modrinth.com/plugin/sqlite-jdbc
+                        """);
             }
-            default -> new DataStorageSupplier() {
-                @Override
-                public <K, V> DataStorage<K, V> getStorage(String name, FlatValueConverter<K> keyConverter, FlatValueConverter<V> valueConverter, SqlValueConverter<K> sqlKeyConverter, SqlValueConverter<V> sqlValueConverter) {
-                    return new PropertiesDataStorage<>(setting.baseFolder(), name, keyConverter, valueConverter);
-                }
-            };
+        }
+        return new DataStorageSupplier() {
+            @Override
+            public <K, V> DataStorage<K, V> getStorage(String name, FlatValueConverter<K> keyConverter, FlatValueConverter<V> valueConverter, SqlValueConverter<K> sqlKeyConverter, SqlValueConverter<V> sqlValueConverter) {
+                return new PropertiesDataStorage<>(setting.baseFolder(), name, keyConverter, valueConverter);
+            }
         };
     }
 
