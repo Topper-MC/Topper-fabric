@@ -63,11 +63,12 @@ dependencies {
     api("io.github.miniplaceholders:miniplaceholders-api:${property("deps.mini_placeholders")}")
     include(implementation("net.byteflux:libby-core:${property("deps.libby")}")!!)
 
-    include(modApi("me.hsgamer:hscore-common:4.6.0")!!)
-    transitiveImpl("me.hsgamer:hscore-config-proxy:4.6.0")
-    transitiveImpl("me.hsgamer:hscore-config-configurate:4.6.0")
-    transitiveImpl("me.hsgamer:hscore-database-client-java:4.6.0")
-    transitiveImpl("org.spongepowered:configurate-gson:4.2.0") {
+    include(api("me.hsgamer:hscore-common:${property("deps.hscore")}")!!)
+    include(api("me.hsgamer:hscore-builder:${property("deps.hscore")}")!!)
+    transitiveImpl("me.hsgamer:hscore-config-proxy:${property("deps.hscore")}")
+    transitiveImpl("me.hsgamer:hscore-config-configurate:${property("deps.hscore")}")
+    transitiveImpl("me.hsgamer:hscore-database-client-java:${property("deps.hscore")}")
+    transitiveImpl("org.spongepowered:configurate-gson:${property("deps.configurate")}") {
         exclude("com.google.code.gson") // Use Minecraft's gson
     }
 
