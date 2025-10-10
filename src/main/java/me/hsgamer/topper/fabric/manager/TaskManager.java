@@ -1,20 +1,19 @@
 package me.hsgamer.topper.fabric.manager;
 
 import me.hsgamer.topper.agent.core.Agent;
-import me.hsgamer.topper.fabric.TopperFabric;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class TaskManager {
-    private final TopperFabric mod;
+    private static final long MILLIS_PER_TICKS = 50;
     private final List<Task> syncTasks = Collections.synchronizedList(new ArrayList<>());
-
-    public TaskManager(TopperFabric mod) {
-        this.mod = mod;
-    }
+    private final ScheduledThreadPoolExecutor scheduler = new ScheduledThreadPoolExecutor(1);
 
     public void onTick() {
         Iterator<Task> taskIterator = syncTasks.iterator();
@@ -24,39 +23,51 @@ public class TaskManager {
                 taskIterator.remove();
                 continue;
             }
-            if (task.canRun()) {
-                task.run();
-                task.scheduleTime();
-            }
+            task.run();
         }
     }
 
     public Agent createTaskAgent(Runnable runnable, boolean async, long delayTicks) {
-        return new Agent() {
-            private Task task;
+        long finalDelayTicks = Math.max(1, delayTicks);
+        if (async) {
+            long delayMillis = finalDelayTicks * MILLIS_PER_TICKS;
+            return new Agent() {
+                private ScheduledFuture<?> scheduledFuture;
 
-            @Override
-            public void start() {
-                task = new Task(runnable, Math.max(1, delayTicks));
-                if (async) {
+                @Override
+                public void start() {
+                    scheduledFuture = scheduler.scheduleAtFixedRate(runnable, delayMillis, delayMillis, TimeUnit.MILLISECONDS);
+                }
 
-                } else {
+                @Override
+                public void stop() {
+                    if (scheduledFuture != null) {
+                        scheduledFuture.cancel(true);
+                    }
+                }
+            };
+        } else {
+            return new Agent() {
+                private Task task;
+
+                @Override
+                public void start() {
+                    task = new Task(runnable, finalDelayTicks);
                     syncTasks.add(task);
                 }
-            }
 
-            @Override
-            public void stop() {
-                if (task != null) {
-                    task.cancel();
+                @Override
+                public void stop() {
+                    if (task != null) {
+                        task.cancel();
+                    }
+                    task = null;
                 }
-                task = null;
-            }
-        };
+            };
+        }
     }
 
     private static final class Task {
-        private static final long MILLIS_PER_TICKS = 50;
         private final Runnable runnable;
         private final long delayTicks;
         private long nextTime;
@@ -85,7 +96,10 @@ public class TaskManager {
         }
 
         void run() {
-            runnable.run();
+            if (canRun()) {
+                runnable.run();
+                scheduleTime();
+            }
         }
     }
 }

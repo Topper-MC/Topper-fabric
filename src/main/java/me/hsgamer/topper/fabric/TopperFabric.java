@@ -51,7 +51,7 @@ public class TopperFabric implements ModInitializer {
         ));
 
         valueProviderManager = new ValueProviderManager(this);
-        taskManager = new TaskManager(this);
+        taskManager = new TaskManager();
 
         template = new FabricTopTemplate(this);
 
