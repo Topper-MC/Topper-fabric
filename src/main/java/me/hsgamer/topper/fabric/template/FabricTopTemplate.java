@@ -76,7 +76,7 @@ public class FabricTopTemplate extends TopPlayerNumberTemplate {
 
     @Override
     public Optional<ValueProvider<UUID, Double>> createValueProvider(Map<String, Object> settings) {
-        return Optional.empty();
+        return mod.getValueProviderManager().build(settings);
     }
 
     @Override

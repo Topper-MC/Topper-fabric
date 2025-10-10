@@ -3,11 +3,15 @@ package me.hsgamer.topper.fabric;
 import me.hsgamer.hscore.config.configurate.ConfigurateConfig;
 import me.hsgamer.hscore.config.proxy.ConfigGenerator;
 import me.hsgamer.topper.fabric.config.MainConfig;
+import me.hsgamer.topper.fabric.manager.ValueProviderManager;
 import me.hsgamer.topper.fabric.template.FabricTopTemplate;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayNetworkHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.configurate.gson.GsonConfigurationLoader;
@@ -17,11 +21,15 @@ import java.nio.file.Path;
 public class TopperFabric implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger(TopperFabric.class);
 
-    private FabricTopTemplate template;
     private MinecraftServer server;
     private Path configFolder;
     private Path dataFolder;
+
     private MainConfig mainConfig;
+
+    private ValueProviderManager valueProviderManager;
+
+    private FabricTopTemplate template;
 
     @Override
     public void onInitialize() {
@@ -39,9 +47,12 @@ public class TopperFabric implements ModInitializer {
                 GsonConfigurationLoader.builder().indent(2)
         ));
 
+        valueProviderManager = new ValueProviderManager();
+
         template = new FabricTopTemplate(this);
         ServerLifecycleEvents.SERVER_STARTING.register(this::onServerStart);
         ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStop);
+        ServerPlayConnectionEvents.JOIN.register(this::onPlayerJoin);
     }
 
     private void onServerStart(MinecraftServer server) {
@@ -52,6 +63,10 @@ public class TopperFabric implements ModInitializer {
     private void onServerStop(MinecraftServer server) {
         template.disable();
         this.server = null;
+    }
+
+    private void onPlayerJoin(ServerPlayNetworkHandler handler, PacketSender sender, MinecraftServer server) {
+        template.getTopManager().create(handler.getPlayer().getUuid());
     }
 
     public MinecraftServer getServer() {
@@ -68,5 +83,9 @@ public class TopperFabric implements ModInitializer {
 
     public MainConfig getMainConfig() {
         return mainConfig;
+    }
+
+    public ValueProviderManager getValueProviderManager() {
+        return valueProviderManager;
     }
 }
