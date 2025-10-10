@@ -18,9 +18,7 @@ repositories {
     }
     strictMaven("https://www.cursemaven.com", "CurseForge", "curse.maven")
     strictMaven("https://api.modrinth.com/maven", "Modrinth", "maven.modrinth")
-    maven("https://maven.fzzyhmstrs.me/") { name = "FzzyMaven" }
     maven("https://maven.nucleoid.xyz/") { name = "Nucleoid" }
-    maven("https://repo.alessiodp.com/releases/") { name = "AlessioDP" }
 }
 
 /**
