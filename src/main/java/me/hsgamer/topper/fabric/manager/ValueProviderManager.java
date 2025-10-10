@@ -2,6 +2,7 @@ package me.hsgamer.topper.fabric.manager;
 
 import me.hsgamer.hscore.builder.FunctionalMassBuilder;
 import me.hsgamer.topper.fabric.TopperFabric;
+import me.hsgamer.topper.fabric.provider.PlaceholderValueProvider;
 import me.hsgamer.topper.fabric.provider.StatisticValueProvider;
 import me.hsgamer.topper.value.core.ValueProvider;
 import net.minecraft.server.PlayerManager;
@@ -24,6 +25,18 @@ public class ValueProviderManager extends FunctionalMassBuilder<Map<String, Obje
                 return playerManager.getPlayer(uuid);
             });
         }, "statistic");
+        register(map -> {
+            String placeholder = Optional.ofNullable(map.get("placeholder")).map(Object::toString).orElse("");
+            return new PlaceholderValueProvider(placeholder)
+                    .thenApply(Double::parseDouble)
+                    .beforeApply(uuid -> {
+                        PlayerManager playerManager = mod.getServer().getPlayerManager();
+                        if (playerManager == null) {
+                            return null;
+                        }
+                        return playerManager.getPlayer(uuid);
+                    });
+        }, "placeholder");
     }
 
     @Override

@@ -66,10 +66,10 @@ dependencies {
     mappings("net.fabricmc:yarn:${property("deps.yarn")}:v2")
     modImplementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
 
-    fapi("fabric-lifecycle-events-v1", "fabric-networking-api-v1")
+    fapi("fabric-lifecycle-events-v1", "fabric-networking-api-v1", "fabric-command-api-v2")
     modImplementation("me.lucko:fabric-permissions-api:0.5.0")
 
-    modImplementation("eu.pb4:placeholder-api:${property("deps.text_placeholder_api")}+${stonecutter.current.version}")
+    modImplementation(include("eu.pb4:placeholder-api:${property("deps.text_placeholder_api")}+${stonecutter.current.version}")!!)
     api("io.github.miniplaceholders:miniplaceholders-api:${property("deps.mini_placeholders")}")
 
     include(api("me.hsgamer:hscore-common:${property("deps.hscore")}")!!)

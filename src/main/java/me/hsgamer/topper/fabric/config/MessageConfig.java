@@ -6,32 +6,32 @@ import me.hsgamer.hscore.config.annotation.ConfigPath;
 public interface MessageConfig {
     @ConfigPath("prefix")
     default String getPrefix() {
-        return "&7[&bTopper&7] &r";
+        return "<gray>[<blue>Topper<gray>] <reset>";
     }
 
     @ConfigPath("success")
     default String getSuccess() {
-        return "&aSuccess";
+        return "<green>Success";
     }
 
     @ConfigPath("number-required")
     default String getNumberRequired() {
-        return "&cNumber is required";
+        return "<red>Number is required";
     }
 
     @ConfigPath("illegal-from-to-index")
     default String getIllegalFromToIndex() {
-        return "&cThe from index should be less than the to index";
+        return "<red>The from index should be less than the to index";
     }
 
     @ConfigPath("top-empty")
     default String getTopEmpty() {
-        return "&cNo top entry";
+        return "<red>No top entry";
     }
 
     @ConfigPath("top-holder-not-found")
     default String getTopHolderNotFound() {
-        return "&cThe top holder is not found";
+        return "<red>The top holder is not found";
     }
 
     void reloadConfig();

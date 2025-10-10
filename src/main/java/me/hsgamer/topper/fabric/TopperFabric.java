@@ -1,24 +1,40 @@
 package me.hsgamer.topper.fabric;
 
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.context.CommandContext;
+import eu.pb4.placeholders.api.TextParserUtils;
 import me.hsgamer.hscore.config.configurate.ConfigurateConfig;
 import me.hsgamer.hscore.config.proxy.ConfigGenerator;
 import me.hsgamer.topper.fabric.config.MainConfig;
+import me.hsgamer.topper.fabric.config.MessageConfig;
 import me.hsgamer.topper.fabric.manager.TaskManager;
 import me.hsgamer.topper.fabric.manager.ValueProviderManager;
 import me.hsgamer.topper.fabric.template.FabricTopTemplate;
+import me.hsgamer.topper.template.topplayernumber.holder.NumberTopHolder;
+import me.hsgamer.topper.template.topplayernumber.holder.display.ValueDisplay;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.command.CommandManager;
+import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.configurate.gson.GsonConfigurationLoader;
 
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.IntStream;
 
 public class TopperFabric implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger(TopperFabric.class);
@@ -28,6 +44,7 @@ public class TopperFabric implements ModInitializer {
     private Path dataFolder;
 
     private MainConfig mainConfig;
+    private MessageConfig messageConfig;
 
     private ValueProviderManager valueProviderManager;
     private TaskManager taskManager;
@@ -49,6 +66,10 @@ public class TopperFabric implements ModInitializer {
                 configFolder.resolve("config.json").toFile(),
                 GsonConfigurationLoader.builder().indent(2)
         ));
+        messageConfig = ConfigGenerator.newInstance(MessageConfig.class, new ConfigurateConfig(
+                configFolder.resolve("messages.json").toFile(),
+                GsonConfigurationLoader.builder().indent(2)
+        ));
 
         valueProviderManager = new ValueProviderManager(this);
         taskManager = new TaskManager();
@@ -59,6 +80,7 @@ public class TopperFabric implements ModInitializer {
         ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStop);
         ServerPlayConnectionEvents.JOIN.register(this::onPlayerJoin);
         ServerTickEvents.START_SERVER_TICK.register(this::onServerTick);
+        CommandRegistrationCallback.EVENT.register(this::registerCommand);
     }
 
     private void onServerStart(MinecraftServer server) {
@@ -77,6 +99,50 @@ public class TopperFabric implements ModInitializer {
 
     private void onServerTick(MinecraftServer server) {
         taskManager.onTick();
+    }
+
+    private void registerCommand(CommandDispatcher<ServerCommandSource> commandDispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
+        commandDispatcher.register(CommandManager.literal("gettop")
+                .then(
+                        CommandManager.argument("holder", StringArgumentType.word()).suggests((context, builder) -> {
+                                    template.getTopManager().getHolderNames().forEach(builder::suggest);
+                                    return builder.buildFuture();
+                                })
+                                .executes(context -> sendTopLines(StringArgumentType.getString(context, "holder"), 1, 10, context))
+                                .then(
+                                        CommandManager.argument("i1", IntegerArgumentType.integer(1))
+                                                .executes(context -> sendTopLines(StringArgumentType.getString(context, "holder"), 1, IntegerArgumentType.getInteger(context, "i1"), context))
+                                                .then(CommandManager.argument("i2", IntegerArgumentType.integer(1))
+                                                        .executes(context -> sendTopLines(StringArgumentType.getString(context, "holder"), IntegerArgumentType.getInteger(context, "i1"), IntegerArgumentType.getInteger(context, "i2"), context))
+                                                )
+                                )
+                ));
+    }
+
+    private int sendTopLines(String holderName, int fromIndex, int toIndex, CommandContext<ServerCommandSource> context) {
+        Optional<NumberTopHolder> optional = template.getTopManager().getHolder(holderName);
+        if (optional.isEmpty()) {
+            sendMessage(context.getSource(), messageConfig.getTopHolderNotFound());
+            return 0;
+        }
+        NumberTopHolder topHolder = optional.get();
+        if (fromIndex > toIndex) {
+            sendMessage(context.getSource(), messageConfig.getIllegalFromToIndex());
+            return 0;
+        }
+        ValueDisplay valueDisplay = topHolder.getValueDisplay();
+        List<String> topList = IntStream.rangeClosed(fromIndex, toIndex).mapToObj(index -> valueDisplay.getDisplayLine(index, topHolder)).toList();
+        if (topList.isEmpty()) {
+            sendMessage(context.getSource(), messageConfig.getTopEmpty());
+        } else {
+            topList.forEach(s -> sendMessage(context.getSource(), s));
+        }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private void sendMessage(ServerCommandSource serverCommandSource, String message) {
+        String prefix = messageConfig.getPrefix();
+        serverCommandSource.sendMessage(TextParserUtils.formatText(prefix + message));
     }
 
     public MinecraftServer getServer() {
