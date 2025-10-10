@@ -113,8 +113,7 @@ public class FabricTopTemplate extends TopPlayerNumberTemplate {
 
     @Override
     public Agent createTaskAgent(Runnable runnable, boolean async, long delay) {
-        // TODO: Seriously, Where the hell is the server scheduler?
-        return null;
+        return mod.getTaskManager().createTaskAgent(runnable, async, delay);
     }
 
     @Override
