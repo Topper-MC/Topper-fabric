@@ -4,6 +4,7 @@ import me.hsgamer.hscore.builder.FunctionalMassBuilder;
 import me.hsgamer.topper.fabric.TopperFabric;
 import me.hsgamer.topper.fabric.provider.StatisticValueProvider;
 import me.hsgamer.topper.value.core.ValueProvider;
+import net.minecraft.server.PlayerManager;
 
 import java.util.Map;
 import java.util.Objects;
@@ -15,7 +16,13 @@ public class ValueProviderManager extends FunctionalMassBuilder<Map<String, Obje
         register(map -> {
             String statType = Optional.ofNullable(map.get("statistic-type")).map(Object::toString).orElse("minecraft:custom");
             String statName = Optional.ofNullable(map.get("statistic")).map(Object::toString).orElse("");
-            return new StatisticValueProvider(statType, statName).beforeApply(mod.getServer().getPlayerManager()::getPlayer);
+            return new StatisticValueProvider(statType, statName).beforeApply(uuid -> {
+                PlayerManager playerManager = mod.getServer().getPlayerManager();
+                if (playerManager == null) {
+                    return null;
+                }
+                return playerManager.getPlayer(uuid);
+            });
         }, "statistic");
     }
 
