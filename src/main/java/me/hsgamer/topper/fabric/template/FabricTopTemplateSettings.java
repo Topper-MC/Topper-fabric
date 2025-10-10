@@ -8,15 +8,17 @@ import me.hsgamer.topper.template.topplayernumber.storage.DataStorageSupplier;
 import java.util.Map;
 
 public class FabricTopTemplateSettings implements TopPlayerNumberTemplate.Settings {
+    private final TopperFabric mod;
     private final FabricDataStorageSupplierSettings dataStorageSupplierSettings;
 
     public FabricTopTemplateSettings(TopperFabric mod) {
+        this.mod = mod;
         this.dataStorageSupplierSettings = new FabricDataStorageSupplierSettings(mod);
     }
 
     @Override
     public String storageType() {
-        return TopperFabric.MAIN_CONFIG.getStorageType();
+        return mod.getMainConfig().getStorageType();
     }
 
     @Override
@@ -26,36 +28,36 @@ public class FabricTopTemplateSettings implements TopPlayerNumberTemplate.Settin
 
     @Override
     public Map<String, NumberTopHolder.Settings> holders() {
-        return TopperFabric.MAIN_CONFIG.getHolders();
+        return mod.getMainConfig().getHolders();
     }
 
     @Override
     public int taskSaveDelay() {
-        return TopperFabric.MAIN_CONFIG.getTaskSaveDelay();
+        return mod.getMainConfig().getTaskSaveDelay();
     }
 
     @Override
     public int taskSaveEntryPerTick() {
-        return TopperFabric.MAIN_CONFIG.getTaskSaveEntryPerTick();
+        return mod.getMainConfig().getTaskSaveEntryPerTick();
     }
 
     @Override
     public int taskUpdateEntryPerTick() {
-        return TopperFabric.MAIN_CONFIG.getTaskUpdateEntryPerTick();
+        return mod.getMainConfig().getTaskUpdateEntryPerTick();
     }
 
     @Override
     public int taskUpdateDelay() {
-        return TopperFabric.MAIN_CONFIG.getTaskUpdateDelay();
+        return mod.getMainConfig().getTaskUpdateDelay();
     }
 
     @Override
     public int taskUpdateSetDelay() {
-        return TopperFabric.MAIN_CONFIG.getTaskUpdateSetDelay();
+        return mod.getMainConfig().getTaskUpdateSetDelay();
     }
 
     @Override
     public int taskUpdateMaxSkips() {
-        return TopperFabric.MAIN_CONFIG.getTaskUpdateMaxSkips();
+        return mod.getMainConfig().getTaskUpdateMaxSkips();
     }
 }

@@ -16,25 +16,32 @@ import java.nio.file.Path;
 
 public class TopperFabric implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger(TopperFabric.class);
-    public static final Path CONFIG_FOLDER = FabricLoader.getInstance().getConfigDir().resolve("topper");
-    public static final Path DATA_FOLDER = FabricLoader.getInstance().getGameDir().resolve("topper_data");
-    public static final MainConfig MAIN_CONFIG = ConfigGenerator.newInstance(MainConfig.class, new ConfigurateConfig(
-            CONFIG_FOLDER.resolve("config.json").toFile(),
-            GsonConfigurationLoader.builder().indent(2)
-    ));
 
     private FabricTopTemplate template;
     private MinecraftServer server;
+    private Path configFolder;
+    private Path dataFolder;
+    private MainConfig mainConfig;
 
     @Override
     public void onInitialize() {
+        configFolder = FabricLoader.getInstance().getConfigDir().resolve("topper");
+        if (!configFolder.toFile().exists()) {
+            configFolder.toFile().mkdirs();
+        }
+        dataFolder = FabricLoader.getInstance().getGameDir().resolve("topper_data");
+        if (!dataFolder.toFile().exists()) {
+            dataFolder.toFile().mkdirs();
+        }
+
+        mainConfig = ConfigGenerator.newInstance(MainConfig.class, new ConfigurateConfig(
+                configFolder.resolve("config.json").toFile(),
+                GsonConfigurationLoader.builder().indent(2)
+        ));
+
         template = new FabricTopTemplate(this);
         ServerLifecycleEvents.SERVER_STARTING.register(this::onServerStart);
         ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStop);
-    }
-
-    public MinecraftServer getServer() {
-        return server;
     }
 
     private void onServerStart(MinecraftServer server) {
@@ -45,5 +52,21 @@ public class TopperFabric implements ModInitializer {
     private void onServerStop(MinecraftServer server) {
         template.disable();
         this.server = null;
+    }
+
+    public MinecraftServer getServer() {
+        return server;
+    }
+
+    public Path getConfigFolder() {
+        return configFolder;
+    }
+
+    public Path getDataFolder() {
+        return dataFolder;
+    }
+
+    public MainConfig getMainConfig() {
+        return mainConfig;
     }
 }
