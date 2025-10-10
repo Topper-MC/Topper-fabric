@@ -15,6 +15,7 @@ import me.hsgamer.topper.value.core.ValueProvider;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.server.PlayerConfigEntry;
+import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.Nullable;
 
@@ -81,29 +82,31 @@ public class FabricTopTemplate extends TopPlayerNumberTemplate {
         return mod.getValueProviderManager().build(settings);
     }
 
+    private ServerPlayerEntity getPlayer(UUID uuid) {
+        PlayerManager playerManager = mod.getServer().getPlayerManager();
+        if (playerManager == null) return null;
+        return playerManager.getPlayer(uuid);
+    }
+
     @Override
     public boolean isOnline(UUID uuid) {
-        return mod.getServer().getPlayerManager().getPlayer(uuid) != null;
+        return getPlayer(uuid) != null;
     }
 
     @Override
     public String getName(UUID uuid) {
-        ServerPlayerEntity player = mod.getServer().getPlayerManager().getPlayer(uuid);
-        if (player != null) {
-            return player.getGameProfile().name();
-        }
+        ServerPlayerEntity player = getPlayer(uuid);
+        if (player != null) return player.getGameProfile().name();
         Optional<PlayerConfigEntry> playerConfigEntryOptional = mod.getServer().getApiServices().nameToIdCache().getByUuid(uuid);
         return playerConfigEntryOptional.map(PlayerConfigEntry::name).orElse(null);
     }
 
     @Override
     public boolean hasPermission(UUID uuid, String permission) {
-        ServerPlayerEntity player = mod.getServer().getPlayerManager().getPlayer(uuid);
+        ServerPlayerEntity player = getPlayer(uuid);
         if (player == null) return false;
-        if (FabricLoader.getInstance().isModLoaded("fabric-permissions-api-v0")) {
-            return Permissions.check(player, permission);
-        }
-        return false;
+        if (!FabricLoader.getInstance().isModLoaded("fabric-permissions-api-v0")) return false;
+        return Permissions.check(player, permission);
     }
 
     @Override
