@@ -61,7 +61,6 @@ dependencies {
 
     modImplementation("eu.pb4:placeholder-api:${property("deps.text_placeholder_api")}+${stonecutter.current.version}")
     api("io.github.miniplaceholders:miniplaceholders-api:${property("deps.mini_placeholders")}")
-    include(implementation("net.byteflux:libby-core:${property("deps.libby")}")!!)
 
     include(api("me.hsgamer:hscore-common:${property("deps.hscore")}")!!)
     include(api("me.hsgamer:hscore-builder:${property("deps.hscore")}")!!)
