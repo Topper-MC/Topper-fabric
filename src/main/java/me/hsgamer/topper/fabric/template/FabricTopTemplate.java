@@ -12,6 +12,10 @@ import me.hsgamer.topper.storage.sql.sqlite.NewSqliteDataStorageSupplier;
 import me.hsgamer.topper.template.topplayernumber.TopPlayerNumberTemplate;
 import me.hsgamer.topper.template.topplayernumber.storage.DataStorageSupplier;
 import me.hsgamer.topper.value.core.ValueProvider;
+import net.fabricmc.loader.api.FabricLoader;
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.LuckPermsProvider;
+import net.luckperms.api.model.user.User;
 import net.minecraft.server.PlayerConfigEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.Nullable;
@@ -98,7 +102,12 @@ public class FabricTopTemplate extends TopPlayerNumberTemplate {
     public boolean hasPermission(UUID uuid, String permission) {
         ServerPlayerEntity player = mod.getServer().getPlayerManager().getPlayer(uuid);
         if (player == null) return false;
-        // TODO: Figure out a way to check permission string of a player
+        if (FabricLoader.getInstance().isModLoaded("luckperms")) {
+            LuckPerms api = LuckPermsProvider.get();
+            User user = api.getUserManager().getUser(uuid);
+            if (user == null) return false;
+            return user.getCachedData().getPermissionData().checkPermission(permission).asBoolean();
+        }
         return false;
     }
 
