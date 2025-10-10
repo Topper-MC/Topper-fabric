@@ -12,7 +12,7 @@ public record PlaceholderValueProvider(String placeholder) implements ValueProvi
     @Override
     public @NotNull ValueWrapper<String> apply(@NotNull ServerPlayerEntity key) {
         Text text = Placeholders.parseText(Text.of(placeholder), PlaceholderContext.of(key));
-        String string = text.toString();
+        String string = text.getLiteralString();
         return placeholder.equals(string) ? ValueWrapper.notHandled() : ValueWrapper.handled(string);
 
     }
