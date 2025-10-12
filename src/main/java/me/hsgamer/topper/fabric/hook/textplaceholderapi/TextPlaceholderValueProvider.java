@@ -8,7 +8,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 
-public record PlaceholderValueProvider(String placeholder) implements ValueProvider<ServerPlayerEntity, String> {
+public record TextPlaceholderValueProvider(String placeholder) implements ValueProvider<ServerPlayerEntity, String> {
     @Override
     public @NotNull ValueWrapper<String> apply(@NotNull ServerPlayerEntity key) {
         Text text = Placeholders.parseText(Text.of(placeholder), PlaceholderContext.of(key));

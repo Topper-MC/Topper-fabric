@@ -89,7 +89,7 @@ public class TopperFabric implements ModInitializer {
         storageSupplierTemplate = new FabricStorageSupplierTemplate();
         topTemplate = new FabricTopTemplate(this);
 
-        TextPlaceholderAPIHook.addHook(this);
+        disableRunnables.add(TextPlaceholderAPIHook.addHook(this));
         if (MiniPlaceholdersHook.isAvailable()) {
             disableRunnables.add(MiniPlaceholdersHook.addHook(this));
         }
