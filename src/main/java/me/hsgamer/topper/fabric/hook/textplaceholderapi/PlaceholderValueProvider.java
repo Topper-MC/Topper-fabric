@@ -1,4 +1,4 @@
-package me.hsgamer.topper.fabric.provider;
+package me.hsgamer.topper.fabric.hook.textplaceholderapi;
 
 import eu.pb4.placeholders.api.PlaceholderContext;
 import eu.pb4.placeholders.api.Placeholders;

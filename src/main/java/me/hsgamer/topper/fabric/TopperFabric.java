@@ -5,20 +5,18 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import eu.pb4.placeholders.api.PlaceholderResult;
-import eu.pb4.placeholders.api.Placeholders;
 import eu.pb4.placeholders.api.TextParserUtils;
 import me.hsgamer.hscore.config.configurate.ConfigurateConfig;
 import me.hsgamer.hscore.config.proxy.ConfigGenerator;
 import me.hsgamer.topper.fabric.config.MainConfig;
 import me.hsgamer.topper.fabric.config.MessageConfig;
+import me.hsgamer.topper.fabric.hook.textplaceholderapi.TextPlaceholderAPIHook;
 import me.hsgamer.topper.fabric.manager.TaskManager;
 import me.hsgamer.topper.fabric.manager.ValueProviderManager;
 import me.hsgamer.topper.fabric.template.FabricDataStorageSupplierSettings;
 import me.hsgamer.topper.fabric.template.FabricStorageSupplierTemplate;
 import me.hsgamer.topper.fabric.template.FabricTopTemplate;
 import me.hsgamer.topper.fabric.util.PermissionUtil;
-import me.hsgamer.topper.query.core.QueryResult;
 import me.hsgamer.topper.template.storagesupplier.storage.DataStorageSupplier;
 import me.hsgamer.topper.template.topplayernumber.holder.NumberTopHolder;
 import me.hsgamer.topper.template.topplayernumber.holder.display.ValueDisplay;
@@ -34,7 +32,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.configurate.gson.GsonConfigurationLoader;
@@ -88,14 +85,7 @@ public class TopperFabric implements ModInitializer {
         storageSupplierTemplate = new FabricStorageSupplierTemplate();
         topTemplate = new FabricTopTemplate(this);
 
-        Placeholders.register(Identifier.of("topper", "query"), (context, argument) -> {
-            QueryResult result = topTemplate.getTopQueryManager().apply(context.hasPlayer() ? context.player().getUuid() : null, argument);
-            if (result.handled) {
-                return PlaceholderResult.value(result.result);
-            } else {
-                return PlaceholderResult.invalid();
-            }
-        });
+        TextPlaceholderAPIHook.addHook(this);
 
         ServerLifecycleEvents.SERVER_STARTING.register(this::onServerStart);
         ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStop);
