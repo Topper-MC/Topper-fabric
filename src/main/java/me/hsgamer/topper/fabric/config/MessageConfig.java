@@ -6,7 +6,7 @@ import me.hsgamer.hscore.config.annotation.ConfigPath;
 public interface MessageConfig {
     @ConfigPath("prefix")
     default String getPrefix() {
-        return "<gray>[<blue>Topper<gray>] <reset>";
+        return "<gray>[<aqua>Topper<gray>] <reset>";
     }
 
     @ConfigPath("success")
