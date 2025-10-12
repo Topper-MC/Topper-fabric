@@ -14,9 +14,12 @@ import me.hsgamer.topper.fabric.config.MainConfig;
 import me.hsgamer.topper.fabric.config.MessageConfig;
 import me.hsgamer.topper.fabric.manager.TaskManager;
 import me.hsgamer.topper.fabric.manager.ValueProviderManager;
+import me.hsgamer.topper.fabric.template.FabricDataStorageSupplierSettings;
+import me.hsgamer.topper.fabric.template.FabricStorageSupplierTemplate;
 import me.hsgamer.topper.fabric.template.FabricTopTemplate;
 import me.hsgamer.topper.fabric.util.PermissionUtil;
 import me.hsgamer.topper.query.core.QueryResult;
+import me.hsgamer.topper.template.storagesupplier.storage.DataStorageSupplier;
 import me.hsgamer.topper.template.topplayernumber.holder.NumberTopHolder;
 import me.hsgamer.topper.template.topplayernumber.holder.display.ValueDisplay;
 import net.fabricmc.api.ModInitializer;
@@ -53,8 +56,10 @@ public class TopperFabric implements ModInitializer {
 
     private ValueProviderManager valueProviderManager;
     private TaskManager taskManager;
+    private DataStorageSupplier dataStorageSupplier;
 
-    private FabricTopTemplate template;
+    private FabricStorageSupplierTemplate storageSupplierTemplate;
+    private FabricTopTemplate topTemplate;
 
     @Override
     public void onInitialize() {
@@ -75,14 +80,16 @@ public class TopperFabric implements ModInitializer {
                 configFolder.resolve("messages.json").toFile(),
                 GsonConfigurationLoader.builder().indent(2)
         ));
+        reloadDatabaseStorageSupplier();
 
         valueProviderManager = new ValueProviderManager(this);
         taskManager = new TaskManager();
 
-        template = new FabricTopTemplate(this);
+        storageSupplierTemplate = new FabricStorageSupplierTemplate();
+        topTemplate = new FabricTopTemplate(this);
 
         Placeholders.register(Identifier.of("topper", "query"), (context, argument) -> {
-            QueryResult result = template.getTopQueryManager().apply(context.hasPlayer() ? context.player().getUuid() : null, argument);
+            QueryResult result = topTemplate.getTopQueryManager().apply(context.hasPlayer() ? context.player().getUuid() : null, argument);
             if (result.handled) {
                 return PlaceholderResult.value(result.result);
             } else {
@@ -99,17 +106,17 @@ public class TopperFabric implements ModInitializer {
 
     private void onServerStart(MinecraftServer server) {
         this.server = server;
-        template.enable();
+        topTemplate.enable();
     }
 
     private void onServerStop(MinecraftServer server) {
         taskManager.shutdown();
-        template.disable();
+        topTemplate.disable();
         this.server = null;
     }
 
     private void onPlayerJoin(ServerPlayNetworkHandler handler, PacketSender sender, MinecraftServer server) {
-        template.getTopManager().create(handler.getPlayer().getUuid());
+        topTemplate.getTopManager().create(handler.getPlayer().getUuid());
     }
 
     private void onServerTick(MinecraftServer server) {
@@ -121,7 +128,7 @@ public class TopperFabric implements ModInitializer {
                 .requires(source -> source.hasPermissionLevel(2) || PermissionUtil.hasPermission(source, Permissions.GET_TOP_LINES))
                 .then(
                         CommandManager.argument("holder", StringArgumentType.word()).suggests((context, builder) -> {
-                                    template.getTopManager().getHolderNames().forEach(builder::suggest);
+                                    topTemplate.getTopManager().getHolderNames().forEach(builder::suggest);
                                     return builder.buildFuture();
                                 })
                                 .executes(context -> sendTopLines(StringArgumentType.getString(context, "holder"), 1, 10, context))
@@ -136,18 +143,23 @@ public class TopperFabric implements ModInitializer {
         commandDispatcher.register(CommandManager.literal("reloadtop")
                 .requires(source -> source.hasPermissionLevel(4) || PermissionUtil.hasPermission(source, Permissions.RELOAD))
                 .executes(context -> {
-                    template.getTopManager().disable();
+                    topTemplate.getTopManager().disable();
                     mainConfig.reloadConfig();
                     messageConfig.reloadConfig();
-                    template.getTopManager().enable();
+                    reloadDatabaseStorageSupplier();
+                    topTemplate.getTopManager().enable();
                     sendMessage(context.getSource(), messageConfig.getSuccess());
                     return Command.SINGLE_SUCCESS;
                 })
         );
     }
 
+    private void reloadDatabaseStorageSupplier() {
+        this.dataStorageSupplier = storageSupplierTemplate.getDataStorageSupplier(new FabricDataStorageSupplierSettings(this));
+    }
+
     private int sendTopLines(String holderName, int fromIndex, int toIndex, CommandContext<ServerCommandSource> context) {
-        Optional<NumberTopHolder> optional = template.getTopManager().getHolder(holderName);
+        Optional<NumberTopHolder> optional = topTemplate.getTopManager().getHolder(holderName);
         if (optional.isEmpty()) {
             sendMessage(context.getSource(), messageConfig.getTopHolderNotFound());
             return 0;
@@ -188,11 +200,27 @@ public class TopperFabric implements ModInitializer {
         return mainConfig;
     }
 
+    public MessageConfig getMessageConfig() {
+        return messageConfig;
+    }
+
+    public DataStorageSupplier getDataStorageSupplier() {
+        return dataStorageSupplier;
+    }
+
     public ValueProviderManager getValueProviderManager() {
         return valueProviderManager;
     }
 
     public TaskManager getTaskManager() {
         return taskManager;
+    }
+
+    public FabricStorageSupplierTemplate getStorageSupplierTemplate() {
+        return storageSupplierTemplate;
+    }
+
+    public FabricTopTemplate getTopTemplate() {
+        return topTemplate;
     }
 }

@@ -8,6 +8,7 @@ version = "${property("mod.version")}+${stonecutter.current.version}"
 base.archivesName = property("mod.id") as String
 
 repositories {
+    mavenLocal()
     /**
      * Restricts dependency search of the given [groups] to the [maven URL][url],
      * improving the setup speed.
@@ -82,7 +83,10 @@ dependencies {
     }
 
     transitiveApi("me.hsgamer:topper-template-top-player-number:${property("deps.topper")}")
+    transitiveApi("me.hsgamer:topper-template-storage-supplier:${property("deps.topper")}")
+    transitiveApi("me.hsgamer:topper-storage-flat-converter:${property("deps.topper")}")
     transitiveApi("me.hsgamer:topper-storage-flat-properties:${property("deps.topper")}")
+    transitiveApi("me.hsgamer:topper-storage-sql-converter:${property("deps.topper")}")
     transitiveApi("me.hsgamer:topper-storage-sql-config:${property("deps.topper")}")
 
     transitiveApi("me.hsgamer:topper-storage-sql-mysql:${property("deps.topper")}") {
@@ -140,7 +144,10 @@ tasks {
     // Builds the version into a shared folder in `build/libs/${mod version}/`
     register<Copy>("buildAndCollect") {
         group = "build"
-        from(remapJar.map { it.archiveFile }, remapSourcesJar.map { it.archiveFile }, named<Jar>("javadocJar").map { it.archiveFile })
+        from(
+            remapJar.map { it.archiveFile },
+            remapSourcesJar.map { it.archiveFile },
+            named<Jar>("javadocJar").map { it.archiveFile })
         into(rootProject.layout.buildDirectory.file("libs/${project.property("mod.version")}"))
         dependsOn("build")
     }

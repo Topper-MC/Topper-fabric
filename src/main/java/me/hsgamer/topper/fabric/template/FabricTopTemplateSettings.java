@@ -3,29 +3,10 @@ package me.hsgamer.topper.fabric.template;
 import me.hsgamer.topper.fabric.TopperFabric;
 import me.hsgamer.topper.template.topplayernumber.TopPlayerNumberTemplate;
 import me.hsgamer.topper.template.topplayernumber.holder.NumberTopHolder;
-import me.hsgamer.topper.template.topplayernumber.storage.DataStorageSupplier;
 
 import java.util.Map;
 
-public class FabricTopTemplateSettings implements TopPlayerNumberTemplate.Settings {
-    private final TopperFabric mod;
-    private final FabricDataStorageSupplierSettings dataStorageSupplierSettings;
-
-    public FabricTopTemplateSettings(TopperFabric mod) {
-        this.mod = mod;
-        this.dataStorageSupplierSettings = new FabricDataStorageSupplierSettings(mod);
-    }
-
-    @Override
-    public String storageType() {
-        return mod.getMainConfig().getStorageType();
-    }
-
-    @Override
-    public DataStorageSupplier.Settings storageSettings() {
-        return dataStorageSupplierSettings;
-    }
-
+public record FabricTopTemplateSettings(TopperFabric mod) implements TopPlayerNumberTemplate.Settings {
     @Override
     public Map<String, NumberTopHolder.Settings> holders() {
         return mod.getMainConfig().getHolders();
