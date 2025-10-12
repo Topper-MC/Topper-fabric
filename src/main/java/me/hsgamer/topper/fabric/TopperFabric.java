@@ -81,12 +81,12 @@ public class TopperFabric implements ModInitializer {
                 configFolder.resolve("messages.json").toFile(),
                 GsonConfigurationLoader.builder().indent(2)
         ));
-        reloadDatabaseStorageSupplier();
 
         valueProviderManager = new ValueProviderManager(this);
         taskManager = new TaskManager();
 
         storageSupplierTemplate = new FabricStorageSupplierTemplate();
+        reloadDatabaseStorageSupplier();
         topTemplate = new FabricTopTemplate(this);
 
         disableRunnables.add(TextPlaceholderAPIHook.addHook(this));
