@@ -28,7 +28,7 @@ public interface ProfileUtil {
         Optional<net.minecraft.server.PlayerConfigEntry> playerConfigEntryOptional = server.getApiServices().nameToIdCache().getByUuid(uuid);
         return playerConfigEntryOptional.map(net.minecraft.server.PlayerConfigEntry::name).orElse(null);
         //?} else {
-        /*return mod.getServer().getUserCache().getByUuid(uuid).map(GameProfile::getName).orElse(null);
+        /*return server.getUserCache().getByUuid(uuid).map(GameProfile::getName).orElse(null);
          *///?}
     }
 }
