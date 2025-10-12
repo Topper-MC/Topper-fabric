@@ -10,7 +10,7 @@ public record FabricValueDisplaySettings(Map<String, Object> map) implements Val
     public String defaultLine() {
         return Optional.ofNullable(map.get("line"))
                 .map(Object::toString)
-                .orElse("<gray>[<blue>{index}<gray>] <blue>{name} <gray>- <blue>{value}");
+                .orElse("<gray>[<aqua>{index}<gray>] <aqua>{name} <gray>- <aqua>{value}");
     }
 
     @Override
