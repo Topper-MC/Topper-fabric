@@ -15,6 +15,7 @@ import me.hsgamer.topper.fabric.config.MessageConfig;
 import me.hsgamer.topper.fabric.manager.TaskManager;
 import me.hsgamer.topper.fabric.manager.ValueProviderManager;
 import me.hsgamer.topper.fabric.template.FabricTopTemplate;
+import me.hsgamer.topper.fabric.util.PermissionUtil;
 import me.hsgamer.topper.query.core.QueryResult;
 import me.hsgamer.topper.template.topplayernumber.holder.NumberTopHolder;
 import me.hsgamer.topper.template.topplayernumber.holder.display.ValueDisplay;
@@ -117,6 +118,7 @@ public class TopperFabric implements ModInitializer {
 
     private void registerCommand(CommandDispatcher<ServerCommandSource> commandDispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
         commandDispatcher.register(CommandManager.literal("gettop")
+                .requires(source -> source.hasPermissionLevel(2) || PermissionUtil.hasPermission(source, Permissions.GET_TOP_LINES))
                 .then(
                         CommandManager.argument("holder", StringArgumentType.word()).suggests((context, builder) -> {
                                     template.getTopManager().getHolderNames().forEach(builder::suggest);
@@ -131,6 +133,17 @@ public class TopperFabric implements ModInitializer {
                                                 )
                                 )
                 ));
+        commandDispatcher.register(CommandManager.literal("reloadtop")
+                .requires(source -> source.hasPermissionLevel(4) ||  PermissionUtil.hasPermission(source, Permissions.RELOAD))
+                .executes(context -> {
+                    template.getTopManager().disable();
+                    mainConfig.reloadConfig();
+                    messageConfig.reloadConfig();
+                    template.getTopManager().enable();
+                    sendMessage(context.getSource(), messageConfig.getSuccess());
+                    return Command.SINGLE_SUCCESS;
+                })
+        );
     }
 
     private int sendTopLines(String holderName, int fromIndex, int toIndex, CommandContext<ServerCommandSource> context) {
