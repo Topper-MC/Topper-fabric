@@ -1,5 +1,6 @@
 package me.hsgamer.topper.fabric.template;
 
+import com.mojang.authlib.GameProfile;
 import me.hsgamer.hscore.database.client.sql.java.JavaSqlClient;
 import me.hsgamer.topper.agent.core.Agent;
 import me.hsgamer.topper.fabric.TopperFabric;
@@ -14,7 +15,6 @@ import me.hsgamer.topper.template.topplayernumber.storage.DataStorageSupplier;
 import me.hsgamer.topper.value.core.ValueProvider;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.server.PlayerConfigEntry;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.Nullable;
@@ -96,9 +96,24 @@ public class FabricTopTemplate extends TopPlayerNumberTemplate {
     @Override
     public String getName(UUID uuid) {
         ServerPlayerEntity player = getPlayer(uuid);
-        if (player != null) return player.getGameProfile().name();
-        Optional<PlayerConfigEntry> playerConfigEntryOptional = mod.getServer().getApiServices().nameToIdCache().getByUuid(uuid);
-        return playerConfigEntryOptional.map(PlayerConfigEntry::name).orElse(null);
+        return player != null ? getName(player.getGameProfile()) : getOfflineName(uuid);
+    }
+
+    private String getName(GameProfile profile) {
+        //? if >= 1.21.9 {
+        return profile.name();
+         //?} else {
+        /*return profile.getName();
+        *///?}
+    }
+
+    private String getOfflineName(UUID uuid) {
+        //? if >= 1.21.9 {
+        Optional<net.minecraft.server.PlayerConfigEntry> playerConfigEntryOptional = mod.getServer().getApiServices().nameToIdCache().getByUuid(uuid);
+        return playerConfigEntryOptional.map(net.minecraft.server.PlayerConfigEntry::name).orElse(null);
+        //?} else {
+        /*return mod.getServer().getUserCache().getByUuid(uuid).map(GameProfile::getName).orElse(null);
+        *///?}
     }
 
     @Override
