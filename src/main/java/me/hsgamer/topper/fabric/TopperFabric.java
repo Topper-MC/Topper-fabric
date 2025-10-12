@@ -10,6 +10,7 @@ import me.hsgamer.hscore.config.configurate.ConfigurateConfig;
 import me.hsgamer.hscore.config.proxy.ConfigGenerator;
 import me.hsgamer.topper.fabric.config.MainConfig;
 import me.hsgamer.topper.fabric.config.MessageConfig;
+import me.hsgamer.topper.fabric.hook.miniplaceholders.MiniPlaceholdersHook;
 import me.hsgamer.topper.fabric.hook.textplaceholderapi.TextPlaceholderAPIHook;
 import me.hsgamer.topper.fabric.manager.TaskManager;
 import me.hsgamer.topper.fabric.manager.ValueProviderManager;
@@ -37,12 +38,15 @@ import org.slf4j.LoggerFactory;
 import org.spongepowered.configurate.gson.GsonConfigurationLoader;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
 public class TopperFabric implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger(TopperFabric.class);
+
+    private final List<Runnable> disableRunnables = new ArrayList<>();
 
     private MinecraftServer server;
     private Path configFolder;
@@ -86,6 +90,9 @@ public class TopperFabric implements ModInitializer {
         topTemplate = new FabricTopTemplate(this);
 
         TextPlaceholderAPIHook.addHook(this);
+        if (MiniPlaceholdersHook.isAvailable()) {
+            disableRunnables.add(MiniPlaceholdersHook.addHook(this));
+        }
 
         ServerLifecycleEvents.SERVER_STARTING.register(this::onServerStart);
         ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStop);
@@ -100,6 +107,7 @@ public class TopperFabric implements ModInitializer {
     }
 
     private void onServerStop(MinecraftServer server) {
+        disableRunnables.forEach(Runnable::run);
         taskManager.shutdown();
         topTemplate.disable();
         this.server = null;

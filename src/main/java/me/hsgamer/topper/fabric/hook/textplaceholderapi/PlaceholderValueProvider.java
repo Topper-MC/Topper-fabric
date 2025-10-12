@@ -14,6 +14,5 @@ public record PlaceholderValueProvider(String placeholder) implements ValueProvi
         Text text = Placeholders.parseText(Text.of(placeholder), PlaceholderContext.of(key));
         String string = text.getLiteralString();
         return placeholder.equals(string) ? ValueWrapper.notHandled() : ValueWrapper.handled(string);
-
     }
 }

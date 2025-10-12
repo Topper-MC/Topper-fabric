@@ -72,6 +72,7 @@ dependencies {
 
     modImplementation(include("eu.pb4:placeholder-api:${property("deps.text_placeholder_api")}+${stonecutter.current.version}")!!)
     api("io.github.miniplaceholders:miniplaceholders-api:${property("deps.mini_placeholders")}")
+    modImplementation("net.kyori:adventure-platform-fabric:${property("deps.adventure_fabric")}")
 
     include(api("me.hsgamer:hscore-common:${property("deps.hscore")}")!!)
     include(api("me.hsgamer:hscore-builder:${property("deps.hscore")}")!!)
