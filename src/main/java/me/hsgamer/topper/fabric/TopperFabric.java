@@ -102,6 +102,7 @@ public class TopperFabric implements ModInitializer {
     }
 
     private void onServerStop(MinecraftServer server) {
+        taskManager.shutdown();
         template.disable();
         this.server = null;
     }

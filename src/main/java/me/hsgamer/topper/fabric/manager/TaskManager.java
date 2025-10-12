@@ -67,6 +67,11 @@ public class TaskManager {
         }
     }
 
+    public void shutdown() {
+        syncTasks.forEach(Task::cancel);
+        scheduler.shutdown();
+    }
+
     private static final class Task {
         private final Runnable runnable;
         private final long delayTicks;
