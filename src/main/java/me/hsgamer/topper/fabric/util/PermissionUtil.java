@@ -21,7 +21,7 @@ public interface PermissionUtil {
         return Permissions.check(commandSource, permission);
     }
 
-    static boolean hasPermission(Entity  entity, String permission) {
+    static boolean hasPermission(Entity entity, String permission) {
         if (!FabricLoader.getInstance().isModLoaded("fabric-permissions-api-v0")) return false;
         return Permissions.check(entity, permission);
     }

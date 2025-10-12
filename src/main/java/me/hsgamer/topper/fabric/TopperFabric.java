@@ -134,7 +134,7 @@ public class TopperFabric implements ModInitializer {
                                 )
                 ));
         commandDispatcher.register(CommandManager.literal("reloadtop")
-                .requires(source -> source.hasPermissionLevel(4) ||  PermissionUtil.hasPermission(source, Permissions.RELOAD))
+                .requires(source -> source.hasPermissionLevel(4) || PermissionUtil.hasPermission(source, Permissions.RELOAD))
                 .executes(context -> {
                     template.getTopManager().disable();
                     mainConfig.reloadConfig();
