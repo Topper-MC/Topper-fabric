@@ -1,9 +1,10 @@
 package me.hsgamer.topper.fabric.template;
 
-import com.mojang.authlib.GameProfile;
 import me.hsgamer.hscore.database.client.sql.java.JavaSqlClient;
 import me.hsgamer.topper.agent.core.Agent;
 import me.hsgamer.topper.fabric.TopperFabric;
+import me.hsgamer.topper.fabric.util.PermissionUtil;
+import me.hsgamer.topper.fabric.util.ProfileUtil;
 import me.hsgamer.topper.storage.core.DataStorage;
 import me.hsgamer.topper.storage.flat.core.FlatValueConverter;
 import me.hsgamer.topper.storage.flat.properties.PropertiesDataStorage;
@@ -13,9 +14,6 @@ import me.hsgamer.topper.storage.sql.sqlite.NewSqliteDataStorageSupplier;
 import me.hsgamer.topper.template.topplayernumber.TopPlayerNumberTemplate;
 import me.hsgamer.topper.template.topplayernumber.storage.DataStorageSupplier;
 import me.hsgamer.topper.value.core.ValueProvider;
-import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,6 +21,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+
+import static me.hsgamer.topper.fabric.util.ProfileUtil.getPlayer;
 
 public class FabricTopTemplate extends TopPlayerNumberTemplate {
     private final TopperFabric mod;
@@ -82,46 +82,20 @@ public class FabricTopTemplate extends TopPlayerNumberTemplate {
         return mod.getValueProviderManager().build(settings);
     }
 
-    private ServerPlayerEntity getPlayer(UUID uuid) {
-        PlayerManager playerManager = mod.getServer().getPlayerManager();
-        if (playerManager == null) return null;
-        return playerManager.getPlayer(uuid);
-    }
-
     @Override
     public boolean isOnline(UUID uuid) {
-        return getPlayer(uuid) != null;
+        return getPlayer(mod.getServer(), uuid) != null;
     }
 
     @Override
     public String getName(UUID uuid) {
-        ServerPlayerEntity player = getPlayer(uuid);
-        return player != null ? getName(player.getGameProfile()) : getOfflineName(uuid);
-    }
-
-    private String getName(GameProfile profile) {
-        //? if >= 1.21.9 {
-        return profile.name();
-         //?} else {
-        /*return profile.getName();
-        *///?}
-    }
-
-    private String getOfflineName(UUID uuid) {
-        //? if >= 1.21.9 {
-        Optional<net.minecraft.server.PlayerConfigEntry> playerConfigEntryOptional = mod.getServer().getApiServices().nameToIdCache().getByUuid(uuid);
-        return playerConfigEntryOptional.map(net.minecraft.server.PlayerConfigEntry::name).orElse(null);
-        //?} else {
-        /*return mod.getServer().getUserCache().getByUuid(uuid).map(GameProfile::getName).orElse(null);
-        *///?}
+        ServerPlayerEntity player = getPlayer(mod.getServer(), uuid);
+        return player != null ? ProfileUtil.getName(player.getGameProfile()) : ProfileUtil.getOfflineName(mod.getServer(), uuid);
     }
 
     @Override
     public boolean hasPermission(UUID uuid, String permission) {
-        ServerPlayerEntity player = getPlayer(uuid);
-        if (player == null) return false;
-        if (!FabricLoader.getInstance().isModLoaded("fabric-permissions-api-v0")) return false;
-        return Permissions.check(player, permission);
+        return PermissionUtil.hasPermission(mod.getServer(), uuid, permission);
     }
 
     @Override
