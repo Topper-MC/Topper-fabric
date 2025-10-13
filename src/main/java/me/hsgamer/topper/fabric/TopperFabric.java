@@ -45,7 +45,7 @@ import java.util.stream.IntStream;
 
 public class TopperFabric implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger(TopperFabric.class);
-
+    private static TopperFabric instance;
     private final List<Runnable> disableRunnables = new ArrayList<>();
 
     private MinecraftServer server;
@@ -62,8 +62,13 @@ public class TopperFabric implements ModInitializer {
     private FabricStorageSupplierTemplate storageSupplierTemplate;
     private FabricTopTemplate topTemplate;
 
+    public static TopperFabric getInstance() {
+        return instance;
+    }
+
     @Override
     public void onInitialize() {
+        instance = this;
         configFolder = FabricLoader.getInstance().getConfigDir().resolve("topper");
         if (!configFolder.toFile().exists()) {
             configFolder.toFile().mkdirs();
