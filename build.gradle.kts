@@ -156,7 +156,7 @@ tasks {
 
 publishMods {
     file = tasks.remapJar.map { it.archiveFile.get() }
-    additionalFiles.from(tasks.remapSourcesJar.map { it.archiveFile.get() })
+    additionalFiles.from(tasks.remapSourcesJar.map { it.archiveFile.get() }, tasks.named<Jar>("javadocJar").map { it.archiveFile })
     displayName = "${property("mod.version")} for FabricMC ${stonecutter.current.version}"
     version = property("mod.version") as String
     changelog = rootProject.file("CHANGELOG.md").readText()
