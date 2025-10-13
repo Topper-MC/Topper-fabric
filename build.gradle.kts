@@ -1,7 +1,7 @@
 plugins {
     `maven-publish`
     id("fabric-loom")
-//    id("me.modmuss50.mod-publish-plugin")
+    id("me.modmuss50.mod-publish-plugin")
 }
 
 version = "${property("mod.version")}+${stonecutter.current.version}"
@@ -154,7 +154,6 @@ tasks {
     }
 }
 
-/*
 publishMods {
     file = tasks.remapJar.map { it.archiveFile.get() }
     additionalFiles.from(tasks.remapSourcesJar.map { it.archiveFile.get() })
@@ -170,22 +169,24 @@ publishMods {
     modrinth {
         projectId = property("publish.modrinth") as String
         accessToken = providers.environmentVariable("MODRINTH_TOKEN")
-        minecraftVersions.add(stonecutter.current.version)
+        property("mod.mc_targets").toString().split(" ").forEach { it ->
+            minecraftVersions.add(it)
+        }
         requires {
             slug = "fabric-api"
         }
-    }
-
-    curseforge {
-        projectId = property("publish.curseforge") as String
-        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
-        minecraftVersions.add(stonecutter.current.version)
         requires {
-            slug = "fabric-api"
+            slug = "placeholder-api"
+        }
+        optional {
+            slug = "miniplaceholders"
+        }
+        optional {
+            slug = "luckperms"
         }
     }
 }
-*/
+
 /*
 publishing {
     repositories {
