@@ -5,10 +5,6 @@ import me.hsgamer.topper.fabric.TopperFabric;
 import me.hsgamer.topper.fabric.util.PermissionUtil;
 import me.hsgamer.topper.fabric.util.ProfileUtil;
 import me.hsgamer.topper.storage.core.DataStorage;
-import me.hsgamer.topper.storage.flat.converter.NumberFlatValueConverter;
-import me.hsgamer.topper.storage.flat.converter.UUIDFlatValueConverter;
-import me.hsgamer.topper.storage.sql.converter.NumberSqlValueConverter;
-import me.hsgamer.topper.storage.sql.converter.UUIDSqlValueConverter;
 import me.hsgamer.topper.template.topplayernumber.TopPlayerNumberTemplate;
 import me.hsgamer.topper.value.core.ValueProvider;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -17,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
 
 import static me.hsgamer.topper.fabric.util.ProfileUtil.getPlayer;
 
@@ -29,14 +26,8 @@ public class FabricTopTemplate extends TopPlayerNumberTemplate {
     }
 
     @Override
-    public DataStorage<UUID, Double> getStorage(String name) {
-        return mod.getDataStorageSupplier().getStorage(
-                name,
-                new UUIDFlatValueConverter(),
-                new NumberFlatValueConverter<>(Number::doubleValue),
-                new UUIDSqlValueConverter("uuid"),
-                new NumberSqlValueConverter<>("value", true, Number::doubleValue)
-        );
+    public Function<String, DataStorage<UUID, Double>> getStorageSupplier() {
+        return mod.getStorageSupplierTemplate().getNumberStorageSupplier();
     }
 
     @Override

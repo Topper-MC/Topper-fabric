@@ -14,11 +14,9 @@ import me.hsgamer.topper.fabric.hook.miniplaceholders.MiniPlaceholdersHook;
 import me.hsgamer.topper.fabric.hook.textplaceholderapi.TextPlaceholderAPIHook;
 import me.hsgamer.topper.fabric.manager.TaskManager;
 import me.hsgamer.topper.fabric.manager.ValueProviderManager;
-import me.hsgamer.topper.fabric.template.FabricDataStorageSupplierSettings;
 import me.hsgamer.topper.fabric.template.FabricStorageSupplierTemplate;
 import me.hsgamer.topper.fabric.template.FabricTopTemplate;
 import me.hsgamer.topper.fabric.util.PermissionUtil;
-import me.hsgamer.topper.template.storagesupplier.storage.DataStorageSupplier;
 import me.hsgamer.topper.template.topplayernumber.holder.NumberTopHolder;
 import me.hsgamer.topper.template.topplayernumber.holder.display.ValueDisplay;
 import net.fabricmc.api.ModInitializer;
@@ -57,7 +55,6 @@ public class TopperFabric implements ModInitializer {
 
     private ValueProviderManager valueProviderManager;
     private TaskManager taskManager;
-    private DataStorageSupplier dataStorageSupplier;
 
     private FabricStorageSupplierTemplate storageSupplierTemplate;
     private FabricTopTemplate topTemplate;
@@ -90,8 +87,7 @@ public class TopperFabric implements ModInitializer {
         valueProviderManager = new ValueProviderManager(this);
         taskManager = new TaskManager();
 
-        storageSupplierTemplate = new FabricStorageSupplierTemplate();
-        reloadDatabaseStorageSupplier();
+        storageSupplierTemplate = new FabricStorageSupplierTemplate(this);
         topTemplate = new FabricTopTemplate(this);
 
         disableRunnables.add(TextPlaceholderAPIHook.addHook(this));
@@ -149,16 +145,11 @@ public class TopperFabric implements ModInitializer {
                     topTemplate.getTopManager().disable();
                     mainConfig.reloadConfig();
                     messageConfig.reloadConfig();
-                    reloadDatabaseStorageSupplier();
                     topTemplate.getTopManager().enable();
                     sendMessage(context.getSource(), messageConfig.getSuccess());
                     return Command.SINGLE_SUCCESS;
                 })
         );
-    }
-
-    private void reloadDatabaseStorageSupplier() {
-        this.dataStorageSupplier = storageSupplierTemplate.getDataStorageSupplier(new FabricDataStorageSupplierSettings(this));
     }
 
     private int sendTopLines(String holderName, int fromIndex, int toIndex, CommandContext<ServerCommandSource> context) {
@@ -205,10 +196,6 @@ public class TopperFabric implements ModInitializer {
 
     public MessageConfig getMessageConfig() {
         return messageConfig;
-    }
-
-    public DataStorageSupplier getDataStorageSupplier() {
-        return dataStorageSupplier;
     }
 
     public ValueProviderManager getValueProviderManager() {
