@@ -1,0 +1,1 @@
+* Update to [Topper 4.7.0](https://github.com/Topper-MC/Topper/releases/tag/4.7.0)
