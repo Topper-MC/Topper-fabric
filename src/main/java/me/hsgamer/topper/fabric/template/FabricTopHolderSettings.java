@@ -1,21 +1,29 @@
 package me.hsgamer.topper.fabric.template;
 
 import me.hsgamer.hscore.common.CollectionUtils;
+import me.hsgamer.topper.agent.update.UpdateAgent;
 import me.hsgamer.topper.fabric.TopperFabric;
+import me.hsgamer.topper.fabric.util.PermissionUtil;
 import me.hsgamer.topper.template.topplayernumber.holder.NumberTopHolder;
 import me.hsgamer.topper.template.topplayernumber.holder.display.ValueDisplay;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.function.Predicate;
 
 public class FabricTopHolderSettings implements NumberTopHolder.Settings {
     private final Map<String, Object> map;
     private final FabricValueDisplaySettings valueDisplaySettings;
+    private final List<String> ignorePermissions;
+    private final List<String> resetPermissions;
 
     public FabricTopHolderSettings(Map<String, Object> map) {
         this.map = map;
         this.valueDisplaySettings = new FabricValueDisplaySettings(map);
+        ignorePermissions = CollectionUtils.createStringListFromObject(map.get("ignore-permission"), true);
+        resetPermissions = CollectionUtils.createStringListFromObject(map.get("reset-permission"), true);
     }
 
     @Override
@@ -74,13 +82,15 @@ public class FabricTopHolderSettings implements NumberTopHolder.Settings {
     }
 
     @Override
-    public List<String> ignorePermissions() {
-        return CollectionUtils.createStringListFromObject(map.get("ignore-permission"), true);
-    }
-
-    @Override
-    public List<String> resetPermissions() {
-        return CollectionUtils.createStringListFromObject(map.get("reset-permission"), true);
+    public UpdateAgent.FilterResult filter(UUID uuid) {
+        Predicate<String> hasPermission = permission -> PermissionUtil.hasPermission(TopperFabric.getInstance().getServer(), uuid, permission);
+        if (!resetPermissions.isEmpty() && resetPermissions.stream().anyMatch(hasPermission)) {
+            return UpdateAgent.FilterResult.RESET;
+        }
+        if (!ignorePermissions.isEmpty() && ignorePermissions.stream().anyMatch(hasPermission)) {
+            return UpdateAgent.FilterResult.SKIP;
+        }
+        return UpdateAgent.FilterResult.CONTINUE;
     }
 
     @Override

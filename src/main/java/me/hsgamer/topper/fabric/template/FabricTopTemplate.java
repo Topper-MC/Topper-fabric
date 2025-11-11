@@ -2,7 +2,6 @@ package me.hsgamer.topper.fabric.template;
 
 import me.hsgamer.topper.agent.core.Agent;
 import me.hsgamer.topper.fabric.TopperFabric;
-import me.hsgamer.topper.fabric.util.PermissionUtil;
 import me.hsgamer.topper.fabric.util.ProfileUtil;
 import me.hsgamer.topper.storage.core.DataStorage;
 import me.hsgamer.topper.template.topplayernumber.TopPlayerNumberTemplate;
@@ -23,6 +22,10 @@ public class FabricTopTemplate extends TopPlayerNumberTemplate {
     public FabricTopTemplate(TopperFabric mod) {
         super(new FabricTopTemplateSettings(mod));
         this.mod = mod;
+        getNameProviderManager().setDefaultNameProvider(uuid -> {
+            ServerPlayerEntity player = getPlayer(mod.getServer(), uuid);
+            return player != null ? ProfileUtil.getName(player.getGameProfile()) : ProfileUtil.getOfflineName(mod.getServer(), uuid);
+        });
     }
 
     @Override
@@ -33,22 +36,6 @@ public class FabricTopTemplate extends TopPlayerNumberTemplate {
     @Override
     public Optional<ValueProvider<UUID, Double>> createValueProvider(Map<String, Object> settings) {
         return mod.getValueProviderManager().build(settings);
-    }
-
-    @Override
-    public boolean isOnline(UUID uuid) {
-        return getPlayer(mod.getServer(), uuid) != null;
-    }
-
-    @Override
-    public String getName(UUID uuid) {
-        ServerPlayerEntity player = getPlayer(mod.getServer(), uuid);
-        return player != null ? ProfileUtil.getName(player.getGameProfile()) : ProfileUtil.getOfflineName(mod.getServer(), uuid);
-    }
-
-    @Override
-    public boolean hasPermission(UUID uuid, String permission) {
-        return PermissionUtil.hasPermission(mod.getServer(), uuid, permission);
     }
 
     @Override
