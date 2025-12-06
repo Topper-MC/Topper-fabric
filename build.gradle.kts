@@ -186,18 +186,7 @@ publishMods {
     }
 }
 
-/*
 publishing {
-    repositories {
-        maven("...") {
-            name = "..."
-            credentials(PasswordCredentials::class.java)
-            authentication {
-                create<BasicAuthentication>("basic")
-            }
-        }
-    }
-
     publications {
         create<MavenPublication>("mavenJava") {
             groupId = "${property("mod.group")}.${property("mod.id")}"
@@ -208,4 +197,3 @@ publishing {
         }
     }
 }
-*/
