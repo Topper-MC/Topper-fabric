@@ -5,6 +5,7 @@ import me.hsgamer.topper.fabric.TopperFabric;
 import me.hsgamer.topper.fabric.util.ProfileUtil;
 import me.hsgamer.topper.storage.core.DataStorage;
 import me.hsgamer.topper.template.topplayernumber.TopPlayerNumberTemplate;
+import me.hsgamer.topper.template.topplayernumber.holder.NumberTopHolder;
 import me.hsgamer.topper.value.core.ValueProvider;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.Nullable;
@@ -20,7 +21,27 @@ public class FabricTopTemplate extends TopPlayerNumberTemplate {
     private final TopperFabric mod;
 
     public FabricTopTemplate(TopperFabric mod) {
-        super(new FabricTopTemplateSettings(mod));
+        super(new Settings() {
+            @Override
+            public Map<String, NumberTopHolder.Settings> holders() {
+                return mod.getMainConfig().getHolders();
+            }
+
+            @Override
+            public int taskSaveEntryPerTick() {
+                return mod.getMainConfig().getTaskSaveEntryPerTick();
+            }
+
+            @Override
+            public int taskUpdateEntryPerTick() {
+                return mod.getMainConfig().getTaskUpdateEntryPerTick();
+            }
+
+            @Override
+            public int taskUpdateMaxSkips() {
+                return mod.getMainConfig().getTaskUpdateMaxSkips();
+            }
+        });
         this.mod = mod;
         getNameProviderManager().setDefaultNameProvider(uuid -> {
             ServerPlayerEntity player = getPlayer(mod.getServer(), uuid);
@@ -39,8 +60,19 @@ public class FabricTopTemplate extends TopPlayerNumberTemplate {
     }
 
     @Override
-    public Agent createTaskAgent(Runnable runnable, boolean async, long delay) {
-        return mod.getTaskManager().createTaskAgent(runnable, async, delay);
+    public Agent createTask(Runnable runnable, NumberTopHolder.TaskType taskType) {
+        return switch (taskType) {
+            case SET ->
+                    mod.getTaskManager().createTaskAgent(runnable, true, mod.getMainConfig().getTaskUpdateSetDelay());
+            case STORAGE ->
+                    mod.getTaskManager().createTaskAgent(runnable, true, mod.getMainConfig().getTaskSaveDelay());
+            default -> mod.getTaskManager().createTaskAgent(runnable, true, 20L);
+        };
+    }
+
+    @Override
+    public Agent createUpdateTask(Runnable runnable, boolean async) {
+        return mod.getTaskManager().createTaskAgent(runnable, true, mod.getMainConfig().getTaskUpdateDelay());
     }
 
     @Override
