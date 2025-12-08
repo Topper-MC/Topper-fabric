@@ -185,7 +185,7 @@ publishMods {
 }
 
 mavenPublishing {
-    publishToMavenCentral(automaticRelease = true)
+    publishToMavenCentral(automaticRelease = true, validateDeployment = false)
     if (gradle.startParameter.taskNames.contains("publishToMavenCentral")) {
         signAllPublications()
     }
