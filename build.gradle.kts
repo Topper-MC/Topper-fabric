@@ -1,5 +1,10 @@
+import com.vanniktech.maven.publish.JavaLibrary
+import com.vanniktech.maven.publish.JavadocJar
+import groovy.util.Node
+import groovy.util.NodeList
+
 plugins {
-    `maven-publish`
+    id("com.vanniktech.maven.publish") version "0.35.0"
     id("fabric-loom")
     id("me.modmuss50.mod-publish-plugin")
 }
@@ -8,7 +13,6 @@ version = "${property("mod.version")}+${stonecutter.current.version}"
 base.archivesName = property("mod.id") as String
 
 repositories {
-    mavenLocal()
     /**
      * Restricts dependency search of the given [groups] to the [maven URL][url],
      * improving the setup speed.
@@ -70,8 +74,8 @@ dependencies {
     fapi("fabric-lifecycle-events-v1", "fabric-networking-api-v1", "fabric-command-api-v2")
     modImplementation("me.lucko:fabric-permissions-api:${property("deps.permissions_api")}")
 
-    modImplementation(include("eu.pb4:placeholder-api:${property("deps.text_placeholder_api")}+${stonecutter.current.version}")!!)
-    api("io.github.miniplaceholders:miniplaceholders-api:${property("deps.mini_placeholders")}")
+    modApi(include("eu.pb4:placeholder-api:${property("deps.text_placeholder_api")}+${stonecutter.current.version}")!!)
+    implementation("io.github.miniplaceholders:miniplaceholders-api:${property("deps.mini_placeholders")}")
     modImplementation("net.kyori:adventure-platform-fabric:${property("deps.adventure_fabric")}")
 
     include(api("me.hsgamer:hscore-common:${property("deps.hscore")}")!!)
@@ -115,8 +119,6 @@ loom {
 }
 
 java {
-    withSourcesJar()
-    withJavadocJar()
     val requiresJava21: Boolean = stonecutter.eval(stonecutter.current.version, ">=1.20.6")
     val javaVersion: JavaVersion =
         if (requiresJava21) JavaVersion.VERSION_21
@@ -145,10 +147,7 @@ tasks {
     // Builds the version into a shared folder in `build/libs/${mod version}/`
     register<Copy>("buildAndCollect") {
         group = "build"
-        from(
-            remapJar.map { it.archiveFile },
-            remapSourcesJar.map { it.archiveFile },
-            named<Jar>("javadocJar").map { it.archiveFile })
+        from(remapJar.map { it.archiveFile })
         into(rootProject.layout.buildDirectory.file("libs/${project.property("mod.version")}"))
         dependsOn("build")
     }
@@ -156,7 +155,6 @@ tasks {
 
 publishMods {
     file = tasks.remapJar.map { it.archiveFile.get() }
-    additionalFiles.from(tasks.remapSourcesJar.map { it.archiveFile.get() }, tasks.named<Jar>("javadocJar").map { it.archiveFile })
     displayName = "${property("mod.version")} for FabricMC ${stonecutter.current.version}"
     version = property("mod.version") as String
     changelog = rootProject.file("CHANGELOG.md").readText()
@@ -186,14 +184,56 @@ publishMods {
     }
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("mavenJava") {
-            groupId = "${property("mod.group")}.${property("mod.id")}"
-            artifactId = property("mod.version") as String
-            version = stonecutter.current.version
+mavenPublishing {
+    publishToMavenCentral(automaticRelease = true)
+    if (gradle.startParameter.taskNames.contains("publishToMavenCentral")) {
+        signAllPublications()
+    }
 
-            from(components["java"])
+    configure(
+        JavaLibrary(
+            javadocJar = JavadocJar.Javadoc(),
+            sourcesJar = true,
+        )
+    )
+
+    coordinates("${property("mod.group")}", "${property("mod.id")}", "${property("mod.version")}+${stonecutter.current.version}")
+
+    pom {
+        name = "Topper Fabric"
+        description = "A FabricMC project to implement Topper"
+        url = "https://github.com/Topper-MC/Topper-fabric"
+
+        licenses {
+            license {
+                name = "MIT License"
+                url = "https://github.com/Topper-MC/Topper-fabric/blob/master/LICENSE"
+            }
+        }
+
+        developers {
+            developer {
+                name = "HSGamer"
+                email = "huynhqtienvtag@gmail.com"
+                url = "https://github.com/HSGamer"
+            }
+        }
+
+        issueManagement {
+            system = "github"
+            url = "https://github.com/Topper-MC/Topper-fabric/issues"
+        }
+
+        scm {
+            connection = "scm:git:https://github.com/Topper-MC/Topper-fabric.git"
+            developerConnection = "scm:git:git@github.com:Topper-MC/Topper-fabric.git"
+            url = "https://github.com/Topper-MC/Topper-fabric"
+        }
+
+        withXml {
+            var root = asNode()
+            var dependencies = root["dependencies"] as NodeList
+            dependencies.forEach { dependency -> root.remove(dependency as Node?) }
         }
     }
 }
