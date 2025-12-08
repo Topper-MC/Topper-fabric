@@ -59,13 +59,16 @@ public class TopperFabric implements ModInitializer {
     private FabricStorageSupplierTemplate storageSupplierTemplate;
     private FabricTopTemplate topTemplate;
 
+    public TopperFabric() {
+        instance = this;
+    }
+
     public static TopperFabric getInstance() {
         return instance;
     }
 
     @Override
     public void onInitialize() {
-        instance = this;
         configFolder = FabricLoader.getInstance().getConfigDir().resolve("topper");
         if (!configFolder.toFile().exists()) {
             configFolder.toFile().mkdirs();
