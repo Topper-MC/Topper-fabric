@@ -4,7 +4,7 @@ import groovy.util.Node
 import groovy.util.NodeList
 
 plugins {
-    id("com.vanniktech.maven.publish") version "0.35.0"
+    id("com.vanniktech.maven.publish") version "0.36.0"
     id("fabric-loom")
     id("me.modmuss50.mod-publish-plugin")
 }
