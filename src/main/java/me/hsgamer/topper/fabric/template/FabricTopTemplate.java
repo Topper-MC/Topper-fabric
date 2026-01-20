@@ -60,19 +60,13 @@ public class FabricTopTemplate extends TopPlayerNumberTemplate {
     }
 
     @Override
-    public Agent createTask(Runnable runnable, NumberTopHolder.TaskType taskType) {
+    public Agent createTask(Runnable runnable, NumberTopHolder.TaskType taskType, Map<String, Object> settings) {
         return switch (taskType) {
-            case SET ->
-                    mod.getTaskManager().createTaskAgent(runnable, true, mod.getMainConfig().getTaskUpdateSetDelay());
-            case STORAGE ->
-                    mod.getTaskManager().createTaskAgent(runnable, true, mod.getMainConfig().getTaskSaveDelay());
-            default -> mod.getTaskManager().createTaskAgent(runnable, true, 20L);
+            case SET -> mod.getTaskManager().createTaskAgent(runnable, mod.getMainConfig().getTaskUpdateSetDelay());
+            case STORAGE -> mod.getTaskManager().createTaskAgent(runnable, mod.getMainConfig().getTaskSaveDelay());
+            case UPDATE -> mod.getTaskManager().createTaskAgent(runnable, mod.getMainConfig().getTaskUpdateDelay());
+            default -> mod.getTaskManager().createTaskAgent(runnable, 20L);
         };
-    }
-
-    @Override
-    public Agent createUpdateTask(Runnable runnable, boolean async) {
-        return mod.getTaskManager().createTaskAgent(runnable, true, mod.getMainConfig().getTaskUpdateDelay());
     }
 
     @Override

@@ -47,15 +47,6 @@ public class FabricTopHolderSettings implements NumberTopHolder.Settings {
     }
 
     @Override
-    public boolean async() {
-        return Optional.ofNullable(map.get("async"))
-                .map(Object::toString)
-                .map(String::toLowerCase)
-                .map(Boolean::parseBoolean)
-                .orElse(false);
-    }
-
-    @Override
     public boolean showErrors() {
         return Optional.ofNullable(map.get("show-errors"))
                 .map(Object::toString)
