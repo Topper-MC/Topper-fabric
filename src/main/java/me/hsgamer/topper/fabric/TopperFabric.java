@@ -22,7 +22,6 @@ import me.hsgamer.topper.template.topplayernumber.holder.display.ValueDisplay;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
@@ -101,7 +100,6 @@ public class TopperFabric implements ModInitializer {
         ServerLifecycleEvents.SERVER_STARTING.register(this::onServerStart);
         ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStop);
         ServerPlayConnectionEvents.JOIN.register(this::onPlayerJoin);
-        ServerTickEvents.START_SERVER_TICK.register(this::onServerTick);
         CommandRegistrationCallback.EVENT.register(this::registerCommand);
     }
 
@@ -119,10 +117,6 @@ public class TopperFabric implements ModInitializer {
 
     private void onPlayerJoin(ServerPlayNetworkHandler handler, PacketSender sender, MinecraftServer server) {
         topTemplate.getTopManager().create(handler.getPlayer().getUuid());
-    }
-
-    private void onServerTick(MinecraftServer server) {
-        taskManager.onTick();
     }
 
     private void registerCommand(CommandDispatcher<ServerCommandSource> commandDispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
