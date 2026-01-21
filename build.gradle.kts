@@ -1,3 +1,4 @@
+import com.vanniktech.maven.publish.DeploymentValidation
 import com.vanniktech.maven.publish.JavaLibrary
 import com.vanniktech.maven.publish.JavadocJar
 import groovy.util.Node
@@ -185,7 +186,7 @@ publishMods {
 }
 
 mavenPublishing {
-    publishToMavenCentral(automaticRelease = true, validateDeployment = false)
+    publishToMavenCentral(automaticRelease = true, validateDeployment = DeploymentValidation.VALIDATED)
     if (gradle.startParameter.taskNames.contains("publishToMavenCentral")) {
         signAllPublications()
     }
