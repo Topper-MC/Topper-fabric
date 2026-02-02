@@ -1,3 +1,0 @@
-- Update Topper to 4.14.0
-- Update HSCore to 4.7.6
-- Remove Server Ticks, default to Async Ticks
