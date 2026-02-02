@@ -121,7 +121,7 @@ public class TopperFabric implements ModInitializer {
 
     private void registerCommand(CommandDispatcher<ServerCommandSource> commandDispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
         commandDispatcher.register(CommandManager.literal("gettop")
-                .requires(source -> source.hasPermissionLevel(2) || PermissionUtil.hasPermission(source, Permissions.GET_TOP_LINES))
+                .requires(source -> PermissionUtil.hasPermissionLevel(source, 2) || PermissionUtil.hasPermission(source, Permissions.GET_TOP_LINES))
                 .then(
                         CommandManager.argument("holder", StringArgumentType.word()).suggests((context, builder) -> {
                                     topTemplate.getTopManager().getHolderNames().forEach(builder::suggest);
@@ -137,7 +137,7 @@ public class TopperFabric implements ModInitializer {
                                 )
                 ));
         commandDispatcher.register(CommandManager.literal("reloadtop")
-                .requires(source -> source.hasPermissionLevel(4) || PermissionUtil.hasPermission(source, Permissions.RELOAD))
+                .requires(source -> PermissionUtil.hasPermissionLevel(source, 4) || PermissionUtil.hasPermission(source, Permissions.RELOAD))
                 .executes(context -> {
                     topTemplate.getTopManager().disable();
                     mainConfig.reloadConfig();
