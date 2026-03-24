@@ -20,7 +20,7 @@ public interface PermissionUtil {
         return level == 0;
         //?} else {
         /*return commandSource.hasPermissionLevel(level);
-        *///?}
+         *///?}
     }
 
     static boolean hasPermission(CommandSource commandSource, String permission) {

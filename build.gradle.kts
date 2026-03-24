@@ -90,6 +90,7 @@ dependencies {
 
     transitiveApi("me.hsgamer:topper-template-top-player-number:${property("deps.topper")}")
     transitiveApi("me.hsgamer:topper-template-storage-supplier:${property("deps.topper")}")
+    transitiveApi("me.hsgamer:topper-template-snapshot-display-line:${property("deps.topper")}")
     transitiveApi("me.hsgamer:topper-storage-flat-converter:${property("deps.topper")}")
     transitiveApi("me.hsgamer:topper-storage-flat-properties:${property("deps.topper")}")
     transitiveApi("me.hsgamer:topper-storage-sql-converter:${property("deps.topper")}")

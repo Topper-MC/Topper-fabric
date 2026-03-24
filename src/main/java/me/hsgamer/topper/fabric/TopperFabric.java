@@ -15,10 +15,10 @@ import me.hsgamer.topper.fabric.hook.textplaceholderapi.TextPlaceholderAPIHook;
 import me.hsgamer.topper.fabric.manager.TaskManager;
 import me.hsgamer.topper.fabric.manager.ValueProviderManager;
 import me.hsgamer.topper.fabric.template.FabricStorageSupplierTemplate;
+import me.hsgamer.topper.fabric.template.FabricTopDisplayLine;
 import me.hsgamer.topper.fabric.template.FabricTopTemplate;
 import me.hsgamer.topper.fabric.util.PermissionUtil;
 import me.hsgamer.topper.template.topplayernumber.holder.NumberTopHolder;
-import me.hsgamer.topper.template.topplayernumber.holder.display.ValueDisplay;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -157,8 +157,8 @@ public class TopperFabric implements ModInitializer {
             sendMessage(context.getSource(), messageConfig.getIllegalFromToIndex());
             return 0;
         }
-        ValueDisplay valueDisplay = topHolder.getValueDisplay();
-        List<String> topList = IntStream.rangeClosed(fromIndex, toIndex).mapToObj(index -> valueDisplay.getDisplayLine(index, topHolder)).toList();
+        FabricTopDisplayLine topDisplayLine = new FabricTopDisplayLine(topHolder);
+        List<String> topList = IntStream.rangeClosed(fromIndex, toIndex).mapToObj(topDisplayLine::display).toList();
         if (topList.isEmpty()) {
             sendMessage(context.getSource(), messageConfig.getTopEmpty());
         } else {

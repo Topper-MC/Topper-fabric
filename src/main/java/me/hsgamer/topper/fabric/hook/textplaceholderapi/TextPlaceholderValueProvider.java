@@ -6,13 +6,18 @@ import me.hsgamer.topper.value.core.ValueProvider;
 import me.hsgamer.topper.value.core.ValueWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
-import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Consumer;
 
 public record TextPlaceholderValueProvider(String placeholder) implements ValueProvider<ServerPlayerEntity, String> {
     @Override
-    public @NotNull ValueWrapper<String> apply(@NotNull ServerPlayerEntity key) {
-        Text text = Placeholders.parseText(Text.of(placeholder), PlaceholderContext.of(key));
+    public void accept(ServerPlayerEntity serverPlayerEntity, Consumer<ValueWrapper<String>> callback) {
+        Text text = Placeholders.parseText(Text.of(placeholder), PlaceholderContext.of(serverPlayerEntity));
         String string = text.getLiteralString();
-        return placeholder.equals(string) ? ValueWrapper.notHandled() : ValueWrapper.handled(string);
+        if (placeholder.equals(string)) {
+            callback.accept(ValueWrapper.notHandled());
+        } else {
+            callback.accept(ValueWrapper.handled(string));
+        }
     }
 }

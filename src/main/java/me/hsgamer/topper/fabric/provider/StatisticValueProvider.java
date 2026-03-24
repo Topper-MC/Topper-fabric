@@ -8,27 +8,29 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.stat.StatHandler;
 import net.minecraft.stat.StatType;
 import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public record StatisticValueProvider(String type,
                                      List<String> names) implements ValueProvider<ServerPlayerEntity, Double> {
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    public @NotNull ValueWrapper<Double> apply(@NotNull ServerPlayerEntity key) {
-        StatHandler statHandler = key.getStatHandler();
+    public void accept(ServerPlayerEntity serverPlayerEntity, Consumer<ValueWrapper<Double>> callback) {
+        StatHandler statHandler = serverPlayerEntity.getStatHandler();
 
         Identifier typeIdentifier = Identifier.tryParse(type);
         if (typeIdentifier == null) {
-            return ValueWrapper.notHandled();
+            callback.accept(ValueWrapper.notHandled());
+            return;
         }
 
         StatType statType = Registries.STAT_TYPE.get(typeIdentifier);
         if (statType == null) {
-            return ValueWrapper.notHandled();
+            callback.accept(ValueWrapper.notHandled());
+            return;
         }
         Registry statRegistry = statType.getRegistry();
 
@@ -37,10 +39,13 @@ public record StatisticValueProvider(String type,
                 .filter(Objects::nonNull)
                 .map(statRegistry::get)
                 .filter(Objects::nonNull);
-        return ValueWrapper.handled(
-                itemStream
-                        .mapToDouble(item -> statHandler.getStat(statType, item))
-                        .sum()
+
+        callback.accept(
+                ValueWrapper.handled(
+                        itemStream
+                                .mapToDouble(item -> statHandler.getStat(statType, item))
+                                .sum()
+                )
         );
     }
 }
