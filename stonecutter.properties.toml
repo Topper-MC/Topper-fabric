@@ -24,3 +24,13 @@ deps.permissions_api = "0.6.1"
 mod.mc_dep = ">=1.21.11 <=1.21.11"
 mod.mc_title = "1.21.11"
 mod.mc_targets = "1.21.11"
+
+["26.1.2"]
+deps.yarn = ""
+deps.fabric_api = "0.146.1+26.1.2"
+deps.text_placeholder_api = "2.8.2+1.21.10"
+deps.permissions_api = "0.6.1"
+mod.mc_dep = ">=26.1 <=26.1.2"
+mod.mc_title = "26.1.2"
+mod.mc_targets = "26.1 26.1.1 26.1.2"
+deps.mini_placeholders = "3.2.0"

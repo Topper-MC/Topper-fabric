@@ -1,7 +1,8 @@
 plugins {
     id("dev.kikugie.stonecutter")
-    id("fabric-loom") version "1.15-SNAPSHOT" apply false
-    id("me.modmuss50.mod-publish-plugin") version "1.0.+" apply false // Publishes builds to hosting websites
+    id("net.fabricmc.fabric-loom") version "1.15-SNAPSHOT" apply false
+    id("net.fabricmc.fabric-loom-remap") version "1.15-SNAPSHOT" apply false
+    id("me.modmuss50.mod-publish-plugin") version "0.8.4" apply false // Publishes builds to hosting websites
 }
 
 stonecutter active "1.21.11"
@@ -9,7 +10,6 @@ stonecutter active "1.21.11"
 // Make newer versions be published last
 stonecutter tasks {
     order("publishModrinth")
-//    order("publishCurseforge")
 }
 
 // See https://stonecutter.kikugie.dev/wiki/config/params
