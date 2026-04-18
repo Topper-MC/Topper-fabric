@@ -5,7 +5,7 @@ plugins {
     id("me.modmuss50.mod-publish-plugin") version "0.8.4" apply false // Publishes builds to hosting websites
 }
 
-stonecutter active "1.21.11"
+stonecutter active "26.1.2"
 
 // Make newer versions be published last
 stonecutter tasks {

@@ -24,7 +24,7 @@ stonecutter {
                 version(version, version).buildscript(buildscript)
             }
         }
-        mc("1.21.11", "1.21.10", "1.21.8")
+        mc("26.1.2", "1.21.11", "1.21.10", "1.21.8")
     }
     create(rootProject)
 }
