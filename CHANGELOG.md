@@ -1,4 +1,2 @@
-* Update to [Topper 4.19.1](https://github.com/Topper-MC/Topper/compare/4.7.0...4.19.1)
-* Optimize the sorting task
-* Make some micro-optimizations
-* Clean up the code structure
+* Add support for MC 26.1-26.1.2
+* Drop support for MC 1.21.8-1.21.10
