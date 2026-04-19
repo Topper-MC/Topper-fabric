@@ -5,7 +5,8 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import eu.pb4.placeholders.api.TextParserUtils;
+import eu.pb4.placeholders.api.ParserContext;
+import eu.pb4.placeholders.api.parsers.TagParser;
 import me.hsgamer.hscore.config.configurate.ConfigurateConfig;
 import me.hsgamer.hscore.config.proxy.ConfigGenerator;
 import me.hsgamer.topper.fabric.config.MainConfig;
@@ -25,11 +26,12 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.command.CommandRegistryAccess;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.configurate.gson.GsonConfigurationLoader;
@@ -115,28 +117,28 @@ public class TopperFabric implements ModInitializer {
         this.server = null;
     }
 
-    private void onPlayerJoin(ServerPlayNetworkHandler handler, PacketSender sender, MinecraftServer server) {
-        topTemplate.getTopManager().create(handler.getPlayer().getUuid());
+    private void onPlayerJoin(ServerGamePacketListenerImpl handler, PacketSender sender, MinecraftServer server) {
+        topTemplate.getTopManager().create(handler.getPlayer().getUUID());
     }
 
-    private void registerCommand(CommandDispatcher<ServerCommandSource> commandDispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
-        commandDispatcher.register(CommandManager.literal("gettop")
+    private void registerCommand(CommandDispatcher<CommandSourceStack> commandDispatcher, CommandBuildContext commandRegistryAccess, Commands.CommandSelection registrationEnvironment) {
+        commandDispatcher.register(Commands.literal("gettop")
                 .requires(source -> PermissionUtil.hasPermissionLevel(source, 2) || PermissionUtil.hasPermission(source, Permissions.GET_TOP_LINES))
                 .then(
-                        CommandManager.argument("holder", StringArgumentType.word()).suggests((context, builder) -> {
+                        Commands.argument("holder", StringArgumentType.word()).suggests((context, builder) -> {
                                     topTemplate.getTopManager().getHolderNames().forEach(builder::suggest);
                                     return builder.buildFuture();
                                 })
                                 .executes(context -> sendTopLines(StringArgumentType.getString(context, "holder"), 1, 10, context))
                                 .then(
-                                        CommandManager.argument("i1", IntegerArgumentType.integer(1))
+                                        Commands.argument("i1", IntegerArgumentType.integer(1))
                                                 .executes(context -> sendTopLines(StringArgumentType.getString(context, "holder"), 1, IntegerArgumentType.getInteger(context, "i1"), context))
-                                                .then(CommandManager.argument("i2", IntegerArgumentType.integer(1))
+                                                .then(Commands.argument("i2", IntegerArgumentType.integer(1))
                                                         .executes(context -> sendTopLines(StringArgumentType.getString(context, "holder"), IntegerArgumentType.getInteger(context, "i1"), IntegerArgumentType.getInteger(context, "i2"), context))
                                                 )
                                 )
                 ));
-        commandDispatcher.register(CommandManager.literal("reloadtop")
+        commandDispatcher.register(Commands.literal("reloadtop")
                 .requires(source -> PermissionUtil.hasPermissionLevel(source, 4) || PermissionUtil.hasPermission(source, Permissions.RELOAD))
                 .executes(context -> {
                     topTemplate.reload();
@@ -146,7 +148,7 @@ public class TopperFabric implements ModInitializer {
         );
     }
 
-    private int sendTopLines(String holderName, int fromIndex, int toIndex, CommandContext<ServerCommandSource> context) {
+    private int sendTopLines(String holderName, int fromIndex, int toIndex, CommandContext<CommandSourceStack> context) {
         Optional<NumberTopHolder> optional = topTemplate.getTopManager().getHolder(holderName);
         if (optional.isEmpty()) {
             sendMessage(context.getSource(), messageConfig.getTopHolderNotFound());
@@ -167,9 +169,14 @@ public class TopperFabric implements ModInitializer {
         return Command.SINGLE_SUCCESS;
     }
 
-    private void sendMessage(ServerCommandSource serverCommandSource, String message) {
+    private void sendMessage(CommandSourceStack serverCommandSource, String message) {
         String prefix = messageConfig.getPrefix();
-        serverCommandSource.sendMessage(TextParserUtils.formatText(prefix + message));
+        //? if >= 26.1 {
+        Component component = TagParser.QUICK_TEXT.parseComponent(prefix + message, ParserContext.of());
+        //? } else {
+        //Component component = TagParser.QUICK_TEXT.parseText(prefix + message, ParserContext.of());
+        //? }
+        serverCommandSource.sendSystemMessage(component);
     }
 
     public MinecraftServer getServer() {

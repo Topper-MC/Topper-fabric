@@ -8,7 +8,7 @@ import me.hsgamer.topper.template.topplayernumber.TopPlayerNumberTemplate;
 import me.hsgamer.topper.template.topplayernumber.holder.NumberTopHolder;
 import me.hsgamer.topper.template.topplayernumber.manager.ReloadManager;
 import me.hsgamer.topper.value.core.ValueProvider;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -45,7 +45,7 @@ public class FabricTopTemplate extends TopPlayerNumberTemplate {
         });
         this.mod = mod;
         getNameProviderManager().setDefaultNameProvider(uuid -> {
-            ServerPlayerEntity player = getPlayer(mod.getServer(), uuid);
+            ServerPlayer player = getPlayer(mod.getServer(), uuid);
             return player != null ? ProfileUtil.getName(player.getGameProfile()) : ProfileUtil.getOfflineName(mod.getServer(), uuid);
         });
         getReloadManager().add(new ReloadManager.ReloadEntry() {

@@ -2,24 +2,26 @@ package me.hsgamer.topper.fabric.provider;
 
 import me.hsgamer.topper.value.core.ValueProvider;
 import me.hsgamer.topper.value.core.ValueWrapper;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.stat.StatHandler;
-import net.minecraft.stat.StatType;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.stats.StatsCounter;
+import net.minecraft.stats.StatType;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public record StatisticValueProvider(String type,
-                                     List<String> names) implements ValueProvider<ServerPlayerEntity, Double> {
+                                     List<String> names) implements ValueProvider<ServerPlayer, Double> {
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    public void accept(ServerPlayerEntity serverPlayerEntity, Consumer<ValueWrapper<Double>> callback) {
-        StatHandler statHandler = serverPlayerEntity.getStatHandler();
+    public void accept(ServerPlayer serverPlayerEntity, Consumer<ValueWrapper<Double>> callback) {
+        StatsCounter statHandler = serverPlayerEntity.getStats();
 
         Identifier typeIdentifier = Identifier.tryParse(type);
         if (typeIdentifier == null) {
@@ -27,23 +29,24 @@ public record StatisticValueProvider(String type,
             return;
         }
 
-        StatType statType = Registries.STAT_TYPE.get(typeIdentifier);
-        if (statType == null) {
+        Optional<Holder.Reference<StatType<?>>> optionalStatTypeReference = BuiltInRegistries.STAT_TYPE.get(typeIdentifier);
+        if (optionalStatTypeReference.isEmpty()) {
             callback.accept(ValueWrapper.notHandled());
             return;
         }
+        StatType statType = optionalStatTypeReference.get().value();
         Registry statRegistry = statType.getRegistry();
 
         Stream<Object> itemStream = names.isEmpty() ? statRegistry.stream() : names.stream()
                 .map(Identifier::tryParse)
                 .filter(Objects::nonNull)
-                .map(statRegistry::get)
+                .map(statRegistry::getValue)
                 .filter(Objects::nonNull);
 
         callback.accept(
                 ValueWrapper.handled(
                         itemStream
-                                .mapToDouble(item -> statHandler.getStat(statType, item))
+                                .mapToDouble(item -> statHandler.getValue(statType, item))
                                 .sum()
                 )
         );

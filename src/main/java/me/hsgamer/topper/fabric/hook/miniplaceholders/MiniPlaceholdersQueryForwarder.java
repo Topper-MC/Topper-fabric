@@ -6,7 +6,7 @@ import me.hsgamer.topper.query.forward.QueryForwardContext;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.ArgumentQueue;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ public class MiniPlaceholdersQueryForwarder implements Consumer<QueryForwardCont
 
         Expansion expansion = Expansion.builder(queryContext.getName())
                 .globalPlaceholder("global", (queue, context) -> queryFunction.apply(null, queue))
-                .audiencePlaceholder(ServerPlayerEntity.class, "player", (audience, queue, ctx) -> queryFunction.apply(audience.getUuid(), queue))
+                .audiencePlaceholder(ServerPlayer.class, "player", (audience, queue, ctx) -> queryFunction.apply(audience.getUUID(), queue))
                 .build();
 
         expansion.register();

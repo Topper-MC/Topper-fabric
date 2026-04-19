@@ -7,13 +7,13 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 
 import java.util.function.Consumer;
 
-public record MiniPlaceholderValueProvider(String placeholder) implements ValueProvider<ServerPlayerEntity, String> {
+public record MiniPlaceholderValueProvider(String placeholder) implements ValueProvider<ServerPlayer, String> {
     @Override
-    public void accept(ServerPlayerEntity serverPlayerEntity, Consumer<ValueWrapper<String>> callback) {
+    public void accept(ServerPlayer serverPlayerEntity, Consumer<ValueWrapper<String>> callback) {
         String parsed;
         try {
             TagResolver tagResolver = MiniPlaceholders.audienceGlobalPlaceholders();
