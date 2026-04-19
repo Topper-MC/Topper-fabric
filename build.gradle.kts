@@ -116,8 +116,8 @@ loom {
 }
 
 java {
-    targetCompatibility = JavaVersion.toVersion(26)
-    sourceCompatibility = JavaVersion.toVersion(26)
+    targetCompatibility = JavaVersion.VERSION_25
+    sourceCompatibility = JavaVersion.VERSION_25
 }
 
 tasks {
