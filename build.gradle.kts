@@ -116,8 +116,8 @@ loom {
 }
 
 java {
-    targetCompatibility = JavaVersion.toVersion(25)
-    sourceCompatibility = JavaVersion.toVersion(25)
+    targetCompatibility = JavaVersion.toVersion(26)
+    sourceCompatibility = JavaVersion.toVersion(26)
 }
 
 tasks {
@@ -147,7 +147,7 @@ tasks {
 }
 
 publishMods {
-    file = project.tasks.named<org.gradle.jvm.tasks.Jar>("jar").flatMap { it.archiveFile }.get()
+    file.set(tasks.jar.flatMap { it.archiveFile })
     displayName = "${property("mod.version")} for FabricMC ${stonecutter.current.version}"
     version = property("mod.version") as String
     changelog = rootProject.file("CHANGELOG.md").readText()

@@ -8,7 +8,6 @@ plugins {
 
 stonecutter active "26.1.2"
 
-// Make newer versions be published last
 stonecutter tasks {
     order("publishModrinth")
 }
