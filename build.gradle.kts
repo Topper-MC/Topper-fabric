@@ -71,7 +71,7 @@ dependencies {
     minecraft("com.mojang:minecraft:${stonecutter.current.version}")
     implementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
 
-    transitiveApi("dev.faststats.metrics:fabric:${property("deps.faststats")}") {
+    transitiveApi("dev.faststats.metrics:core:${property("deps.faststats")}") {
         exclude("com.google.code.gson") // Use Minecraft's gson
         exclude("org.jetbrains")
         exclude("org.jspecify")
