@@ -5,6 +5,8 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import dev.faststats.core.data.Metric;
+import dev.faststats.fabric.FabricMetrics;
 import eu.pb4.placeholders.api.ParserContext;
 import eu.pb4.placeholders.api.parsers.TagParser;
 import me.hsgamer.hscore.config.configurate.ConfigurateConfig;
@@ -108,6 +110,11 @@ public class TopperFabric implements ModInitializer {
     private void onServerStart(MinecraftServer server) {
         this.server = server;
         topTemplate.enable();
+
+        FabricMetrics.factory()
+                .token("314aeec477ff85ca7e547c506bebf24b")
+                .addMetric(Metric.number("holders", () -> topTemplate.getTopManager().getHolderNames().size()))
+                .create("topper-fabric");
     }
 
     private void onServerStop(MinecraftServer server) {

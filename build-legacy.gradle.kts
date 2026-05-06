@@ -21,6 +21,10 @@ repositories {
     strictMaven("https://www.cursemaven.com", "CurseForge", "curse.maven")
     strictMaven("https://api.modrinth.com/maven", "Modrinth", "maven.modrinth")
     maven("https://maven.nucleoid.xyz/") { name = "Nucleoid" }
+    maven {
+        name = "faststatsReleases"
+        url = uri("https://repo.faststats.dev/releases")
+    }
 }
 
 /**
@@ -67,6 +71,12 @@ dependencies {
     minecraft("com.mojang:minecraft:${stonecutter.current.version}")
     mappings(loom.officialMojangMappings())
     modImplementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
+
+    transitiveApi("dev.faststats.metrics:fabric:${property("deps.faststats")}") {
+        exclude("com.google.code.gson") // Use Minecraft's gson
+        exclude("org.jetbrains")
+        exclude("org.jspecify")
+    }
 
     fapi("fabric-lifecycle-events-v1", "fabric-networking-api-v1", "fabric-command-api-v2")
     modImplementation("me.lucko:fabric-permissions-api:${property("deps.permissions_api")}")
