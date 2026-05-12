@@ -1,3 +1,11 @@
+loomx.loom_version = "1.16-SNAPSHOT"
+
+deps.fabric_loader = "0.17.2"
+deps.topper = "4.19.1"
+deps.hscore = "4.8.1"
+deps.configurate = "4.2.0"
+deps.faststats = "0.22.0"
+
 ["1.21.11"]
 deps.fabric_api = "0.141.2+1.21.11"
 deps.text_placeholder_api = "2.8.2+1.21.10"

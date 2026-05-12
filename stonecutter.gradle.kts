@@ -1,8 +1,6 @@
 plugins {
     id("dev.kikugie.stonecutter")
     id("com.vanniktech.maven.publish") version "0.36.0" apply false
-    id("net.fabricmc.fabric-loom") version "1.15-SNAPSHOT" apply false
-    id("net.fabricmc.fabric-loom-remap") version "1.15-SNAPSHOT" apply false
     id("me.modmuss50.mod-publish-plugin") version "1.1.0" apply false // Publishes builds to hosting websites
 }
 

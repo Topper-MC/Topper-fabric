@@ -2,31 +2,22 @@ pluginManagement {
     repositories {
         mavenCentral()
         gradlePluginPortal()
-        maven("https://maven.fabricmc.net/")
+        maven("https://maven.fabricmc.net/") { name = "Fabric" }
+        maven("https://maven.kikugie.dev/releases") { name = "KikuGie Releases" }
         maven("https://maven.kikugie.dev/snapshots") { name = "KikuGie Snapshots" }
     }
 }
 
 plugins {
     id("dev.kikugie.stonecutter") version "0.9.3"
+    id("dev.kikugie.loom-back-compat") version "0.3"
 }
 
 stonecutter {
-    kotlinController = true
-    shared {
-        fun mc(vararg versions: String) {
-            for (version in versions) {
-                val buildscript = if (sc.eval(version, ">=26.1")) {
-                    "build.gradle.kts"
-                } else {
-                    "build-legacy.gradle.kts"
-                }
-                version(version, version).buildscript(buildscript)
-            }
-        }
-        mc("26.1.2", "1.21.11")
+    create(rootProject) {
+        versions("26.1.2", "1.21.11")
+        vcsVersion = "26.1.2"
     }
-    create(rootProject)
 }
 
 rootProject.name = "Topper-fabric"

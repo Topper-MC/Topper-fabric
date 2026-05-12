@@ -6,7 +6,7 @@ import groovy.util.NodeList
 
 plugins {
     id("com.vanniktech.maven.publish")
-    id("net.fabricmc.fabric-loom")
+    id("dev.kikugie.loom-back-compat")
     id("me.modmuss50.mod-publish-plugin")
 }
 
@@ -14,10 +14,6 @@ version = "${property("mod.version")}+${stonecutter.current.version}"
 base.archivesName = property("mod.id") as String
 
 repositories {
-    /**
-     * Restricts dependency search of the given [groups] to the [maven URL][url],
-     * improving the setup speed.
-     */
     fun strictMaven(url: String, alias: String, vararg groups: String) = exclusiveContent {
         forRepository { maven(url) { name = alias } }
         filter { groups.forEach(::includeGroup) }
@@ -64,25 +60,30 @@ fun DependencyHandler.transitiveApi(
 }
 
 dependencies {
+    /**
+     * Fetches only the required Fabric API modules to not waste time downloading all of them for each version.
+     * @see <a href="https://github.com/FabricMC/fabric">List of Fabric API modules</a>
+     */
     fun fapi(vararg modules: String) {
-        for (it in modules) implementation(fabricApi.module(it, property("deps.fabric_api") as String))
+        for (it in modules) modImplementation(fabricApi.module(it, property("deps.fabric_api") as String))
     }
 
     minecraft("com.mojang:minecraft:${stonecutter.current.version}")
-    implementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
+    loomx.applyMojangMappings()
+    modImplementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
 
-    transitiveApi("dev.faststats.metrics:core:${property("deps.faststats")}") {
+    transitiveApi("dev.faststats.metrics:fabric:${property("deps.faststats")}") {
         exclude("com.google.code.gson") // Use Minecraft's gson
         exclude("org.jetbrains")
         exclude("org.jspecify")
     }
 
     fapi("fabric-lifecycle-events-v1", "fabric-networking-api-v1", "fabric-command-api-v2")
-    implementation("me.lucko:fabric-permissions-api:${property("deps.permissions_api")}")
+    modImplementation("me.lucko:fabric-permissions-api:${property("deps.permissions_api")}")
 
-    api(include("eu.pb4:placeholder-api:${property("deps.text_placeholder_api")}")!!)
+    modApi(include("eu.pb4:placeholder-api:${property("deps.text_placeholder_api")}")!!)
     implementation("io.github.miniplaceholders:miniplaceholders-api:${property("deps.mini_placeholders")}")
-    implementation("net.kyori:adventure-platform-fabric:${property("deps.adventure_fabric")}")
+    modImplementation("net.kyori:adventure-platform-fabric:${property("deps.adventure_fabric")}")
 
     include(api("me.hsgamer:hscore-common:${property("deps.hscore")}")!!)
     include(api("me.hsgamer:hscore-builder:${property("deps.hscore")}")!!)
@@ -98,7 +99,7 @@ dependencies {
     transitiveApi("me.hsgamer:topper-template-snapshot-display-line:${property("deps.topper")}")
     transitiveApi("me.hsgamer:topper-storage-flat-converter:${property("deps.topper")}")
     transitiveApi("me.hsgamer:topper-storage-flat-properties:${property("deps.topper")}")
-    transitiveApi("me.hsgamer:topper-storage-sql-converter:${project.property("deps.topper")}")
+    transitiveApi("me.hsgamer:topper-storage-sql-converter:${property("deps.topper")}")
     transitiveApi("me.hsgamer:topper-storage-sql-config:${property("deps.topper")}")
 
     transitiveApi("me.hsgamer:topper-storage-sql-mysql:${property("deps.topper")}") {
@@ -125,9 +126,14 @@ loom {
     }
 }
 
+val requiredJava: JavaVersion = when {
+    sc.current.parsed >= "26.1" -> JavaVersion.VERSION_25
+    else -> JavaVersion.VERSION_21
+}
+
 java {
-    targetCompatibility = JavaVersion.VERSION_25
-    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = requiredJava
+    sourceCompatibility = requiredJava
 }
 
 tasks {
@@ -150,14 +156,14 @@ tasks {
     // Builds the version into a shared folder in `build/libs/${mod version}/`
     register<Copy>("buildAndCollect") {
         group = "build"
-        from(project.tasks.named<org.gradle.jvm.tasks.Jar>("jar").flatMap { it.archiveFile })
+        from(loomx.modJar.map { it.archiveFile })
         into(rootProject.layout.buildDirectory.file("libs/${project.property("mod.version")}"))
         dependsOn("build")
     }
 }
 
 publishMods {
-    file.set(tasks.jar.flatMap { it.archiveFile })
+    file.set(loomx.modJar.flatMap { it.archiveFile })
     displayName = "${property("mod.version")} for FabricMC ${stonecutter.current.version}"
     version = property("mod.version") as String
     changelog = rootProject.file("CHANGELOG.md").readText()
