@@ -72,7 +72,7 @@ dependencies {
     loomx.applyMojangMappings()
     modImplementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
 
-    transitiveApi("dev.faststats.metrics:fabric:${property("deps.faststats")}") {
+    transitiveApi("io.github.projectunified:faststats-fabric:${property("deps.faststats")}") {
         exclude("com.google.code.gson") // Use Minecraft's gson
         exclude("org.jetbrains")
         exclude("org.jspecify")
