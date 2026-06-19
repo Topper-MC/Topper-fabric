@@ -5,10 +5,13 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import dev.faststats.core.data.Metric;
-import dev.faststats.fabric.FabricMetrics;
 import eu.pb4.placeholders.api.ParserContext;
 import eu.pb4.placeholders.api.parsers.TagParser;
+import io.github.projectunified.faststats.core.Metric;
+import io.github.projectunified.faststats.core.Metrics;
+import io.github.projectunified.faststats.fabric.FabricPlatform;
+import io.github.projectunified.faststats.gson.GsonSerializer;
+import io.github.projectunified.faststats.httpclient.HttpClientSubmitter;
 import me.hsgamer.hscore.config.configurate.ConfigurateConfig;
 import me.hsgamer.hscore.config.proxy.ConfigGenerator;
 import me.hsgamer.topper.fabric.config.MainConfig;
@@ -29,10 +32,10 @@ import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.commands.Commands;
-import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,10 +114,14 @@ public class TopperFabric implements ModInitializer {
         this.server = server;
         topTemplate.enable();
 
-        FabricMetrics.factory()
-                .token("314aeec477ff85ca7e547c506bebf24b")
+        Metrics metrics = Metrics.builder()
+                .platform(new FabricPlatform(server, "topper-fabric"))
+                .serializer(new GsonSerializer())
+                .submitter(new HttpClientSubmitter("314aeec477ff85ca7e547c506bebf24b"))
                 .addMetric(Metric.number("holders", () -> topTemplate.getTopManager().getHolderNames().size()))
-                .create("topper-fabric");
+                .build();
+        metrics.start();
+        disableRunnables.add(metrics::shutdown);
     }
 
     private void onServerStop(MinecraftServer server) {
