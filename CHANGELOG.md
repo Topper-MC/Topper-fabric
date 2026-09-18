@@ -1,2 +1,1 @@
-* Add 26.2 support
-* Use a lighter Metrics
+* Add 26.3 support
