@@ -10,3 +10,9 @@ stonecutter parameters {
     constants["release"] = property("mod.id") != "template"
     dependencies["fapi"] = node.project.property("deps.fabric_api") as String
 }
+
+tasks.register<Delete>("clean") {
+    group = "build"
+    description = "Deletes the root build directory."
+    delete(layout.buildDirectory)
+}
