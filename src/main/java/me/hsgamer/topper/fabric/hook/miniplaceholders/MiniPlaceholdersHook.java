@@ -14,13 +14,16 @@ public interface MiniPlaceholdersHook {
 
     static Runnable addHook(TopperFabric mod) {
         MiniPlaceholdersQueryForwarder forwarder = new MiniPlaceholdersQueryForwarder();
-        mod.getTopTemplate().getQueryForwardManager().addForwarder(forwarder);
+        mod.getTopTemplate().getQueryForward().addForwarder(forwarder);
         mod.getValueProviderManager().register(map -> {
             String placeholder = Optional.ofNullable(map.get("placeholder")).map(Object::toString).orElse("");
             return new MiniPlaceholderValueProvider(placeholder)
                     .thenApply(Double::parseDouble)
                     .beforeApply(uuid -> ProfileUtil.getPlayer(TopperPlatformImpl.getInstance().getServer(), uuid));
         }, "placeholder");
-        return forwarder::unregister;
+        return () -> {
+            mod.getTopTemplate().getQueryForward().removeForwarder(forwarder);
+            forwarder.unregister();
+        };
     }
 }

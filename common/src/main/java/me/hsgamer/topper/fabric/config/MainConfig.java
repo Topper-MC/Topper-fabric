@@ -1,8 +1,8 @@
 package me.hsgamer.topper.fabric.config;
 
-import me.hsgamer.hscore.config.Config;
-import me.hsgamer.hscore.config.annotation.Comment;
-import me.hsgamer.hscore.config.annotation.ConfigPath;
+import io.github.projectunified.craftconfig.annotation.Comment;
+import io.github.projectunified.craftconfig.annotation.ConfigPath;
+import io.github.projectunified.craftconfig.common.Config;
 import me.hsgamer.topper.fabric.config.converter.HolderMapConverter;
 import me.hsgamer.topper.template.topplayernumber.holder.NumberTopHolder;
 

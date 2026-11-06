@@ -1,6 +1,6 @@
 package me.hsgamer.topper.fabric.template;
 
-import me.hsgamer.hscore.database.client.sql.java.JavaSqlClient;
+import io.github.projectunified.craftdatabase.client.sql.java.JavaSqlClient;
 import me.hsgamer.topper.fabric.TopperFabric;
 import me.hsgamer.topper.storage.core.DataStorage;
 import me.hsgamer.topper.storage.flat.converter.NumberFlatValueConverter;
@@ -11,7 +11,7 @@ import me.hsgamer.topper.storage.sql.converter.NumberSqlValueConverter;
 import me.hsgamer.topper.storage.sql.converter.UUIDSqlValueConverter;
 import me.hsgamer.topper.storage.sql.core.SqlValueConverter;
 import me.hsgamer.topper.storage.sql.mysql.MySqlDataStorageSupplier;
-import me.hsgamer.topper.storage.sql.sqlite.NewSqliteDataStorageSupplier;
+import me.hsgamer.topper.storage.sql.sqlite.SqliteDataStorageSupplier;
 import me.hsgamer.topper.template.storagesupplier.StorageSupplierTemplate;
 import me.hsgamer.topper.template.storagesupplier.storage.DataStorageSupplier;
 
@@ -51,11 +51,11 @@ public class FabricStorageSupplierTemplate implements StorageSupplierTemplate {
             case "sqlite" -> {
                 try {
                     Class.forName("org.sqlite.JDBC");
-                    NewSqliteDataStorageSupplier newSqliteDataStorageSupplier = new NewSqliteDataStorageSupplier(settings.baseFolder(), settings.databaseSetting(), JavaSqlClient::new);
+                    SqliteDataStorageSupplier sqliteDataStorageSupplier = new SqliteDataStorageSupplier(settings.baseFolder(), settings.databaseSetting(), JavaSqlClient::new);
                     return new DataStorageSupplier() {
                         @Override
                         public <K, V> DataStorage<K, V> getStorage(String name, FlatValueConverter<K> keyConverter, FlatValueConverter<V> valueConverter, SqlValueConverter<K> sqlKeyConverter, SqlValueConverter<V> sqlValueConverter) {
-                            return newSqliteDataStorageSupplier.getStorage(name, sqlKeyConverter, sqlValueConverter);
+                            return sqliteDataStorageSupplier.getStorage(name, sqlKeyConverter, sqlValueConverter);
                         }
                     };
                 } catch (ClassNotFoundException ex) {

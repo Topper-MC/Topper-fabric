@@ -1,7 +1,7 @@
 package me.hsgamer.topper.fabric.config;
 
-import me.hsgamer.hscore.config.Config;
-import me.hsgamer.hscore.config.annotation.ConfigPath;
+import io.github.projectunified.craftconfig.annotation.ConfigPath;
+import io.github.projectunified.craftconfig.common.Config;
 
 public interface MessageConfig {
     @ConfigPath("prefix")

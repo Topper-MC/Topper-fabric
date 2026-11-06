@@ -1,7 +1,7 @@
 package me.hsgamer.topper.fabric;
 
-import me.hsgamer.hscore.config.configurate.ConfigurateConfig;
-import me.hsgamer.hscore.config.proxy.ConfigGenerator;
+import io.github.projectunified.craftconfig.configurate.ConfigurateConfig;
+import io.github.projectunified.craftconfig.proxy.ConfigGenerator;
 import me.hsgamer.topper.fabric.config.MainConfig;
 import me.hsgamer.topper.fabric.config.MessageConfig;
 import me.hsgamer.topper.fabric.manager.TaskManager;
@@ -44,29 +44,6 @@ public class TopperFabric implements ModInitializer {
         return instance;
     }
 
-    @Override
-    public void onInitialize() {
-        createFolder(configFolder);
-        createFolder(dataFolder);
-
-        mainConfig = ConfigGenerator.newInstance(MainConfig.class, new ConfigurateConfig(
-                configFolder.resolve("config.json").toFile(),
-                GsonConfigurationLoader.builder().indent(2)
-        ));
-        messageConfig = ConfigGenerator.newInstance(MessageConfig.class, new ConfigurateConfig(
-                configFolder.resolve("messages.json").toFile(),
-                GsonConfigurationLoader.builder().indent(2)
-        ));
-
-        valueProviderManager = new ValueProviderManager();
-        taskManager = new TaskManager();
-        storageSupplierTemplate = new FabricStorageSupplierTemplate(this);
-
-        platform = loadPlatform();
-        topTemplate = new FabricTopTemplate(this, platform);
-        platform.initialize(this);
-    }
-
     private static void createFolder(Path folder) {
         if (!folder.toFile().exists()) {
             folder.toFile().mkdirs();
@@ -91,9 +68,39 @@ public class TopperFabric implements ModInitializer {
         return platforms.get(0);
     }
 
+    @Override
+    public void onInitialize() {
+        createFolder(configFolder);
+        createFolder(dataFolder);
+
+        mainConfig = ConfigGenerator.newInstance(MainConfig.class, new ConfigurateConfig(
+                configFolder.resolve("config.json").toFile(),
+                GsonConfigurationLoader.builder().indent(2)
+        ));
+        messageConfig = ConfigGenerator.newInstance(MessageConfig.class, new ConfigurateConfig(
+                configFolder.resolve("messages.json").toFile(),
+                GsonConfigurationLoader.builder().indent(2)
+        ));
+
+        valueProviderManager = new ValueProviderManager();
+        taskManager = new TaskManager();
+        storageSupplierTemplate = new FabricStorageSupplierTemplate(this);
+
+        platform = loadPlatform();
+        topTemplate = new FabricTopTemplate(this, platform);
+        platform.initialize(this);
+    }
+
     public void onServerStop() {
         taskManager.shutdown();
         topTemplate.disable();
+    }
+
+    public void reloadTemplate() {
+        topTemplate.disable();
+        mainConfig.reloadConfig();
+        messageConfig.reloadConfig();
+        topTemplate.enable();
     }
 
     public void onPlayerJoin(UUID uuid) {

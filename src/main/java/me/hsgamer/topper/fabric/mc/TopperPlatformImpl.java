@@ -135,7 +135,7 @@ public class TopperPlatformImpl implements TopperPlatform {
         commandDispatcher.register(Commands.literal("reloadtop")
                 .requires(source -> PermissionUtil.hasPermissionLevel(source, 4) || PermissionUtil.hasPermission(source, Permissions.RELOAD))
                 .executes(context -> {
-                    mod.getTopTemplate().reload();
+                    mod.reloadTemplate();
                     sendMessage(context.getSource(), mod.getMessageConfig().getSuccess());
                     return Command.SINGLE_SUCCESS;
                 })

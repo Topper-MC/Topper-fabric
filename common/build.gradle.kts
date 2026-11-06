@@ -39,20 +39,24 @@ fun DependencyHandler.transitiveApi(
 }
 
 dependencies {
-    minecraft("com.mojang:minecraft:26.1-snapshot-5")
+    minecraft("com.mojang:minecraft:26.1")
     compileOnly("net.fabricmc:fabric-loader:${rootProject.property("deps.fabric_loader")}")
     compileOnly("org.slf4j:slf4j-api:2.0.17")
     compileOnly("org.jetbrains:annotations:26.0.2")
 
     include(api("me.hsgamer:hscore-common:${rootProject.property("deps.hscore")}")!!)
     include(api("me.hsgamer:hscore-builder:${rootProject.property("deps.hscore")}")!!)
-    transitiveApi("me.hsgamer:hscore-config-proxy:${rootProject.property("deps.hscore")}")
-    transitiveApi("me.hsgamer:hscore-config-configurate:${rootProject.property("deps.hscore")}")
-    transitiveApi("me.hsgamer:hscore-database-client-java:${rootProject.property("deps.hscore")}")
+
+    transitiveApi("io.github.projectunified:craftconfig-proxy:${rootProject.property("deps.craftconfig")}")
+    transitiveApi("io.github.projectunified:craftconfig-configurate:${rootProject.property("deps.craftconfig")}")
+
+    transitiveApi("io.github.projectunified:craftdatabase-client-java:${rootProject.property("deps.craftdatabase")}")
+
     transitiveApi("org.spongepowered:configurate-gson:${rootProject.property("deps.configurate")}") {
         exclude("com.google.code.gson")
     }
 
+    transitiveApi("me.hsgamer:topper-query-forward:${rootProject.property("deps.topper")}")
     transitiveApi("me.hsgamer:topper-template-top-player-number:${rootProject.property("deps.topper")}")
     transitiveApi("me.hsgamer:topper-template-storage-supplier:${rootProject.property("deps.topper")}")
     transitiveApi("me.hsgamer:topper-template-snapshot-display-line:${rootProject.property("deps.topper")}")

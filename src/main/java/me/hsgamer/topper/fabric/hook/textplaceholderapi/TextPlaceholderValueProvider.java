@@ -2,7 +2,6 @@ package me.hsgamer.topper.fabric.hook.textplaceholderapi;
 
 import eu.pb4.placeholders.api.PlaceholderContext;
 import eu.pb4.placeholders.api.Placeholders;
-import eu.pb4.placeholders.api.node.TextNode;
 import me.hsgamer.topper.value.core.ValueProvider;
 import me.hsgamer.topper.value.core.ValueWrapper;
 import net.minecraft.server.level.ServerPlayer;

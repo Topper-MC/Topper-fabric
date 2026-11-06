@@ -1,6 +1,6 @@
 package me.hsgamer.topper.fabric.template;
 
-import me.hsgamer.hscore.config.configurate.ConfigurateConfig;
+import io.github.projectunified.craftconfig.configurate.ConfigurateConfig;
 import me.hsgamer.topper.fabric.TopperFabric;
 import me.hsgamer.topper.storage.sql.config.SqlDatabaseConfig;
 import me.hsgamer.topper.storage.sql.core.SqlDatabaseSetting;

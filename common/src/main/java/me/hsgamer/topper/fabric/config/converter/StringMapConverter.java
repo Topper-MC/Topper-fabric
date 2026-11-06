@@ -1,6 +1,6 @@
 package me.hsgamer.topper.fabric.config.converter;
 
-import me.hsgamer.hscore.config.annotation.converter.Converter;
+import io.github.projectunified.craftconfig.annotation.converter.Converter;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
