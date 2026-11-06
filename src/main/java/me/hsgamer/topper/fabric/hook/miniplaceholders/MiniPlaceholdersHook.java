@@ -1,6 +1,7 @@
 package me.hsgamer.topper.fabric.hook.miniplaceholders;
 
 import me.hsgamer.topper.fabric.TopperFabric;
+import me.hsgamer.topper.fabric.mc.TopperPlatformImpl;
 import me.hsgamer.topper.fabric.util.ProfileUtil;
 import net.fabricmc.loader.api.FabricLoader;
 
@@ -18,7 +19,7 @@ public interface MiniPlaceholdersHook {
             String placeholder = Optional.ofNullable(map.get("placeholder")).map(Object::toString).orElse("");
             return new MiniPlaceholderValueProvider(placeholder)
                     .thenApply(Double::parseDouble)
-                    .beforeApply(uuid -> ProfileUtil.getPlayer(mod.getServer(), uuid));
+                    .beforeApply(uuid -> ProfileUtil.getPlayer(TopperPlatformImpl.getInstance().getServer(), uuid));
         }, "placeholder");
         return forwarder::unregister;
     }

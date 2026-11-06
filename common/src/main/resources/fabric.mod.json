@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "${id}",
+  "version": "${version}",
+  "name": "${name}",
+  "description": "Another leaderboard mod for Fabric",
+  "authors": [
+    "HSGamer"
+  ],
+  "contact": {
+    "homepage": "https://github.com/Topper-MC",
+    "sources": "https://github.com/Topper-MC/Topper-fabric"
+  },
+  "license": "MIT",
+  "icon": "assets/topper/icon.png",
+  "environment": "server",
+  "entrypoints": {
+    "main": [
+      "me.hsgamer.topper.fabric.TopperFabric"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.16"
+  }
+}

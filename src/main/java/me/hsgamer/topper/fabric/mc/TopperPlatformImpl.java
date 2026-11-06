@@ -1,4 +1,4 @@
-package me.hsgamer.topper.fabric;
+package me.hsgamer.topper.fabric.mc;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
@@ -12,113 +12,86 @@ import io.github.projectunified.faststats.core.Metrics;
 import io.github.projectunified.faststats.fabric.FabricPlatform;
 import io.github.projectunified.faststats.gson.GsonSerializer;
 import io.github.projectunified.faststats.httpclient.HttpClientSubmitter;
-import me.hsgamer.hscore.config.configurate.ConfigurateConfig;
-import me.hsgamer.hscore.config.proxy.ConfigGenerator;
-import me.hsgamer.topper.fabric.config.MainConfig;
-import me.hsgamer.topper.fabric.config.MessageConfig;
+import me.hsgamer.hscore.common.CollectionUtils;
+import me.hsgamer.topper.fabric.Permissions;
+import me.hsgamer.topper.fabric.TopperFabric;
+import me.hsgamer.topper.fabric.TopperPlatform;
 import me.hsgamer.topper.fabric.hook.miniplaceholders.MiniPlaceholdersHook;
 import me.hsgamer.topper.fabric.hook.textplaceholderapi.TextPlaceholderAPIHook;
-import me.hsgamer.topper.fabric.manager.TaskManager;
-import me.hsgamer.topper.fabric.manager.ValueProviderManager;
-import me.hsgamer.topper.fabric.template.FabricStorageSupplierTemplate;
+import me.hsgamer.topper.fabric.provider.StatisticValueProvider;
 import me.hsgamer.topper.fabric.template.FabricTopDisplayLine;
-import me.hsgamer.topper.fabric.template.FabricTopTemplate;
 import me.hsgamer.topper.fabric.util.PermissionUtil;
+import me.hsgamer.topper.fabric.util.ProfileUtil;
 import me.hsgamer.topper.template.topplayernumber.holder.NumberTopHolder;
-import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerGamePacketListenerImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.spongepowered.configurate.gson.GsonConfigurationLoader;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.PlayerList;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.IntStream;
 
-public class TopperFabric implements ModInitializer {
-    public static final Logger LOGGER = LoggerFactory.getLogger(TopperFabric.class);
-    private static TopperFabric instance;
+public class TopperPlatformImpl implements TopperPlatform {
+    private static TopperPlatformImpl instance;
+
     private final List<Runnable> disableRunnables = new ArrayList<>();
-
+    private TopperFabric mod;
     private MinecraftServer server;
-    private Path configFolder;
-    private Path dataFolder;
 
-    private MainConfig mainConfig;
-    private MessageConfig messageConfig;
-
-    private ValueProviderManager valueProviderManager;
-    private TaskManager taskManager;
-
-    private FabricStorageSupplierTemplate storageSupplierTemplate;
-    private FabricTopTemplate topTemplate;
-
-    public TopperFabric() {
+    public TopperPlatformImpl() {
         instance = this;
     }
 
-    public static TopperFabric getInstance() {
+    public static TopperPlatformImpl getInstance() {
         return instance;
     }
 
+    public MinecraftServer getServer() {
+        return server;
+    }
+
     @Override
-    public void onInitialize() {
-        configFolder = FabricLoader.getInstance().getConfigDir().resolve("topper");
-        if (!configFolder.toFile().exists()) {
-            configFolder.toFile().mkdirs();
-        }
-        dataFolder = FabricLoader.getInstance().getGameDir().resolve("topper_data");
-        if (!dataFolder.toFile().exists()) {
-            dataFolder.toFile().mkdirs();
-        }
+    public void initialize(TopperFabric mod) {
+        this.mod = mod;
 
-        mainConfig = ConfigGenerator.newInstance(MainConfig.class, new ConfigurateConfig(
-                configFolder.resolve("config.json").toFile(),
-                GsonConfigurationLoader.builder().indent(2)
-        ));
-        messageConfig = ConfigGenerator.newInstance(MessageConfig.class, new ConfigurateConfig(
-                configFolder.resolve("messages.json").toFile(),
-                GsonConfigurationLoader.builder().indent(2)
-        ));
+        mod.getValueProviderManager().register(map -> {
+            String statType = Optional.ofNullable(map.get("statistic-type")).map(Object::toString).orElse("minecraft:custom");
+            List<String> statNames = CollectionUtils.createStringListFromObject(map.get("statistic"), true);
+            return new StatisticValueProvider(statType, statNames).beforeApply(uuid -> {
+                PlayerList playerManager = server.getPlayerList();
+                return playerManager.getPlayer(uuid);
+            });
+        }, "statistic");
 
-        valueProviderManager = new ValueProviderManager(this);
-        taskManager = new TaskManager();
-
-        storageSupplierTemplate = new FabricStorageSupplierTemplate(this);
-        topTemplate = new FabricTopTemplate(this);
-
-        disableRunnables.add(TextPlaceholderAPIHook.addHook(this));
+        disableRunnables.add(TextPlaceholderAPIHook.addHook(mod));
         if (MiniPlaceholdersHook.isAvailable()) {
-            disableRunnables.add(MiniPlaceholdersHook.addHook(this));
+            disableRunnables.add(MiniPlaceholdersHook.addHook(mod));
         }
 
         ServerLifecycleEvents.SERVER_STARTING.register(this::onServerStart);
         ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStop);
-        ServerPlayConnectionEvents.JOIN.register(this::onPlayerJoin);
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> mod.onPlayerJoin(handler.getPlayer().getUUID()));
         CommandRegistrationCallback.EVENT.register(this::registerCommand);
     }
 
     private void onServerStart(MinecraftServer server) {
         this.server = server;
-        topTemplate.enable();
+        mod.getTopTemplate().enable();
 
         Metrics metrics = Metrics.builder()
-                .platform(new FabricPlatform(server, "topper-fabric"))
+                .platform(new FabricPlatform(server, TopperFabric.MOD_ID))
                 .serializer(new GsonSerializer())
                 .submitter(new HttpClientSubmitter("314aeec477ff85ca7e547c506bebf24b"))
-                .addMetric(Metric.number("holders", () -> topTemplate.getTopManager().getHolderNames().size()))
+                .addMetric(Metric.number("holders", () -> mod.getTopTemplate().getTopManager().getHolderNames().size()))
                 .build();
         metrics.start();
         disableRunnables.add(metrics::shutdown);
@@ -126,13 +99,20 @@ public class TopperFabric implements ModInitializer {
 
     private void onServerStop(MinecraftServer server) {
         disableRunnables.forEach(Runnable::run);
-        taskManager.shutdown();
-        topTemplate.disable();
+        disableRunnables.clear();
+        mod.onServerStop();
         this.server = null;
     }
 
-    private void onPlayerJoin(ServerGamePacketListenerImpl handler, PacketSender sender, MinecraftServer server) {
-        topTemplate.getTopManager().create(handler.getPlayer().getUUID());
+    @Override
+    public String getPlayerName(UUID uuid) {
+        ServerPlayer player = ProfileUtil.getPlayer(server, uuid);
+        return player != null ? ProfileUtil.getName(player.getGameProfile()) : ProfileUtil.getOfflineName(server, uuid);
+    }
+
+    @Override
+    public boolean hasPermission(UUID uuid, String permission) {
+        return PermissionUtil.hasPermission(server, uuid, permission);
     }
 
     private void registerCommand(CommandDispatcher<CommandSourceStack> commandDispatcher, CommandBuildContext commandRegistryAccess, Commands.CommandSelection registrationEnvironment) {
@@ -140,7 +120,7 @@ public class TopperFabric implements ModInitializer {
                 .requires(source -> PermissionUtil.hasPermissionLevel(source, 2) || PermissionUtil.hasPermission(source, Permissions.GET_TOP_LINES))
                 .then(
                         Commands.argument("holder", StringArgumentType.word()).suggests((context, builder) -> {
-                                    topTemplate.getTopManager().getHolderNames().forEach(builder::suggest);
+                                    mod.getTopTemplate().getTopManager().getHolderNames().forEach(builder::suggest);
                                     return builder.buildFuture();
                                 })
                                 .executes(context -> sendTopLines(StringArgumentType.getString(context, "holder"), 1, 10, context))
@@ -155,28 +135,28 @@ public class TopperFabric implements ModInitializer {
         commandDispatcher.register(Commands.literal("reloadtop")
                 .requires(source -> PermissionUtil.hasPermissionLevel(source, 4) || PermissionUtil.hasPermission(source, Permissions.RELOAD))
                 .executes(context -> {
-                    topTemplate.reload();
-                    sendMessage(context.getSource(), messageConfig.getSuccess());
+                    mod.getTopTemplate().reload();
+                    sendMessage(context.getSource(), mod.getMessageConfig().getSuccess());
                     return Command.SINGLE_SUCCESS;
                 })
         );
     }
 
     private int sendTopLines(String holderName, int fromIndex, int toIndex, CommandContext<CommandSourceStack> context) {
-        Optional<NumberTopHolder> optional = topTemplate.getTopManager().getHolder(holderName);
+        Optional<NumberTopHolder> optional = mod.getTopTemplate().getTopManager().getHolder(holderName);
         if (optional.isEmpty()) {
-            sendMessage(context.getSource(), messageConfig.getTopHolderNotFound());
+            sendMessage(context.getSource(), mod.getMessageConfig().getTopHolderNotFound());
             return 0;
         }
         NumberTopHolder topHolder = optional.get();
         if (fromIndex > toIndex) {
-            sendMessage(context.getSource(), messageConfig.getIllegalFromToIndex());
+            sendMessage(context.getSource(), mod.getMessageConfig().getIllegalFromToIndex());
             return 0;
         }
         FabricTopDisplayLine topDisplayLine = new FabricTopDisplayLine(topHolder);
         List<String> topList = IntStream.rangeClosed(fromIndex, toIndex).mapToObj(topDisplayLine::display).toList();
         if (topList.isEmpty()) {
-            sendMessage(context.getSource(), messageConfig.getTopEmpty());
+            sendMessage(context.getSource(), mod.getMessageConfig().getTopEmpty());
         } else {
             topList.forEach(s -> sendMessage(context.getSource(), s));
         }
@@ -184,48 +164,12 @@ public class TopperFabric implements ModInitializer {
     }
 
     private void sendMessage(CommandSourceStack serverCommandSource, String message) {
-        String prefix = messageConfig.getPrefix();
+        String prefix = mod.getMessageConfig().getPrefix();
         //? if >= 26.1 {
         Component component = TagParser.QUICK_TEXT.parseComponent(prefix + message, ParserContext.of());
         //? } else {
         //Component component = TagParser.QUICK_TEXT.parseText(prefix + message, ParserContext.of());
         //? }
         serverCommandSource.sendSystemMessage(component);
-    }
-
-    public MinecraftServer getServer() {
-        return server;
-    }
-
-    public Path getConfigFolder() {
-        return configFolder;
-    }
-
-    public Path getDataFolder() {
-        return dataFolder;
-    }
-
-    public MainConfig getMainConfig() {
-        return mainConfig;
-    }
-
-    public MessageConfig getMessageConfig() {
-        return messageConfig;
-    }
-
-    public ValueProviderManager getValueProviderManager() {
-        return valueProviderManager;
-    }
-
-    public TaskManager getTaskManager() {
-        return taskManager;
-    }
-
-    public FabricStorageSupplierTemplate getStorageSupplierTemplate() {
-        return storageSupplierTemplate;
-    }
-
-    public FabricTopTemplate getTopTemplate() {
-        return topTemplate;
     }
 }

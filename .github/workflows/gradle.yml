@@ -25,4 +25,4 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: "Topper"
-          path: "build/libs/*/topper*.jar"
+          path: "build/dist/topper-fabric-*.jar"

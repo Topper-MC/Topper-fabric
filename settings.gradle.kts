@@ -21,3 +21,5 @@ stonecutter {
 }
 
 rootProject.name = "Topper-fabric"
+
+include("common")

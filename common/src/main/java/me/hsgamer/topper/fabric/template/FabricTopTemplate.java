@@ -2,13 +2,12 @@ package me.hsgamer.topper.fabric.template;
 
 import me.hsgamer.topper.agent.core.Agent;
 import me.hsgamer.topper.fabric.TopperFabric;
-import me.hsgamer.topper.fabric.util.ProfileUtil;
+import me.hsgamer.topper.fabric.TopperPlatform;
 import me.hsgamer.topper.storage.core.DataStorage;
 import me.hsgamer.topper.template.topplayernumber.TopPlayerNumberTemplate;
 import me.hsgamer.topper.template.topplayernumber.holder.NumberTopHolder;
 import me.hsgamer.topper.template.topplayernumber.manager.ReloadManager;
 import me.hsgamer.topper.value.core.ValueProvider;
-import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -16,12 +15,10 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
-import static me.hsgamer.topper.fabric.util.ProfileUtil.getPlayer;
-
 public class FabricTopTemplate extends TopPlayerNumberTemplate {
     private final TopperFabric mod;
 
-    public FabricTopTemplate(TopperFabric mod) {
+    public FabricTopTemplate(TopperFabric mod, TopperPlatform platform) {
         super(new Settings() {
             @Override
             public Map<String, NumberTopHolder.Settings> holders() {
@@ -44,10 +41,7 @@ public class FabricTopTemplate extends TopPlayerNumberTemplate {
             }
         });
         this.mod = mod;
-        getNameProviderManager().setDefaultNameProvider(uuid -> {
-            ServerPlayer player = getPlayer(mod.getServer(), uuid);
-            return player != null ? ProfileUtil.getName(player.getGameProfile()) : ProfileUtil.getOfflineName(mod.getServer(), uuid);
-        });
+        getNameProviderManager().setDefaultNameProvider(platform::getPlayerName);
         getReloadManager().add(new ReloadManager.ReloadEntry() {
             @Override
             public void reload() {

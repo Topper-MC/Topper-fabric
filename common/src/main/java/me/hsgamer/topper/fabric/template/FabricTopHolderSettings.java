@@ -3,7 +3,6 @@ package me.hsgamer.topper.fabric.template;
 import me.hsgamer.hscore.common.CollectionUtils;
 import me.hsgamer.topper.agent.update.UpdateAgent;
 import me.hsgamer.topper.fabric.TopperFabric;
-import me.hsgamer.topper.fabric.util.PermissionUtil;
 import me.hsgamer.topper.template.topplayernumber.holder.NumberTopHolder;
 
 import java.util.List;
@@ -28,7 +27,7 @@ public class FabricTopHolderSettings extends NumberTopHolder.MapSettings {
 
     @Override
     public UpdateAgent.FilterResult filter(UUID uuid) {
-        Predicate<String> hasPermission = permission -> PermissionUtil.hasPermission(TopperFabric.getInstance().getServer(), uuid, permission);
+        Predicate<String> hasPermission = permission -> TopperFabric.getInstance().getPlatform().hasPermission(uuid, permission);
         if (!resetPermissions.isEmpty() && resetPermissions.stream().anyMatch(hasPermission)) {
             return UpdateAgent.FilterResult.RESET;
         }

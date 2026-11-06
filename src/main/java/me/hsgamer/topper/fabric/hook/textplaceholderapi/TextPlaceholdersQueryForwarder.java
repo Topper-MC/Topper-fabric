@@ -38,7 +38,6 @@ public class TextPlaceholdersQueryForwarder implements Consumer<QueryForwardCont
     }
 
     public void unregister() {
-//        identifiers.forEach(Placeholders::remove);
         identifiers.clear();
     }
 }

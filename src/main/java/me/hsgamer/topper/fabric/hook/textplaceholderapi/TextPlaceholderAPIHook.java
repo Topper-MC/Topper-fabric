@@ -1,6 +1,7 @@
 package me.hsgamer.topper.fabric.hook.textplaceholderapi;
 
 import me.hsgamer.topper.fabric.TopperFabric;
+import me.hsgamer.topper.fabric.mc.TopperPlatformImpl;
 import me.hsgamer.topper.fabric.util.ProfileUtil;
 
 import java.util.Optional;
@@ -13,7 +14,7 @@ public interface TextPlaceholderAPIHook {
             String placeholder = Optional.ofNullable(map.get("placeholder")).map(Object::toString).orElse("");
             return new TextPlaceholderValueProvider(placeholder)
                     .thenApply(Double::parseDouble)
-                    .beforeApply(uuid -> ProfileUtil.getPlayer(mod.getServer(), uuid));
+                    .beforeApply(uuid -> ProfileUtil.getPlayer(TopperPlatformImpl.getInstance().getServer(), uuid));
         }, "placeholder");
         return forwarder::unregister;
     }

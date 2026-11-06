@@ -1,1 +1,1 @@
-* Add 26.3 support
+* Publish a single file for all versions
