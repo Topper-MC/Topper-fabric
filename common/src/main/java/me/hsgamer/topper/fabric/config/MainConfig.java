@@ -1,6 +1,7 @@
 package me.hsgamer.topper.fabric.config;
 
 import io.github.projectunified.craftconfig.annotation.Comment;
+import io.github.projectunified.craftconfig.annotation.ConfigNode;
 import io.github.projectunified.craftconfig.annotation.ConfigPath;
 import io.github.projectunified.craftconfig.common.Config;
 import me.hsgamer.topper.fabric.config.converter.HolderMapConverter;
@@ -9,6 +10,7 @@ import me.hsgamer.topper.template.topplayernumber.holder.NumberTopHolder;
 import java.util.Collections;
 import java.util.Map;
 
+@ConfigNode
 public interface MainConfig {
     @ConfigPath(value = "holders", converter = HolderMapConverter.class, priority = 1)
     @Comment({

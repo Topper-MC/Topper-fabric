@@ -1,8 +1,10 @@
 package me.hsgamer.topper.fabric.config;
 
+import io.github.projectunified.craftconfig.annotation.ConfigNode;
 import io.github.projectunified.craftconfig.annotation.ConfigPath;
 import io.github.projectunified.craftconfig.common.Config;
 
+@ConfigNode
 public interface MessageConfig {
     @ConfigPath("prefix")
     default String getPrefix() {
