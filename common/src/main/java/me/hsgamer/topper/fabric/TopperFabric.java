@@ -8,9 +8,14 @@ import me.hsgamer.topper.fabric.manager.TaskManager;
 import me.hsgamer.topper.fabric.manager.ValueProviderManager;
 import me.hsgamer.topper.fabric.template.FabricStorageSupplierTemplate;
 import me.hsgamer.topper.fabric.template.FabricTopTemplate;
+import me.hsgamer.topper.query.core.QueryResult;
+import me.hsgamer.topper.query.forward.QueryForward;
+import me.hsgamer.topper.query.forward.QueryForwardContext;
+import me.hsgamer.topper.template.topplayernumber.holder.NumberTopHolder;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.entrypoint.EntrypointContainer;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.configurate.gson.GsonConfigurationLoader;
@@ -18,6 +23,7 @@ import org.spongepowered.configurate.gson.GsonConfigurationLoader;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.BiFunction;
 
 public class TopperFabric implements ModInitializer {
     public static final String MOD_ID = "topper-fabric";
@@ -26,6 +32,7 @@ public class TopperFabric implements ModInitializer {
 
     private final Path configFolder;
     private final Path dataFolder;
+    private final QueryForward<UUID, QueryForwardContext<UUID>> queryForward;
     private MainConfig mainConfig;
     private MessageConfig messageConfig;
     private ValueProviderManager valueProviderManager;
@@ -36,6 +43,7 @@ public class TopperFabric implements ModInitializer {
 
     public TopperFabric() {
         instance = this;
+        queryForward = new QueryForward<>();
         configFolder = FabricLoader.getInstance().getConfigDir().resolve("topper");
         dataFolder = FabricLoader.getInstance().getGameDir().resolve("topper_data");
     }
@@ -89,6 +97,18 @@ public class TopperFabric implements ModInitializer {
         platform = loadPlatform();
         topTemplate = new FabricTopTemplate(this, platform);
         platform.initialize(this);
+
+        queryForward.addContext(new QueryForwardContext<>() {
+            @Override
+            public String getName() {
+                return NumberTopHolder.GROUP;
+            }
+
+            @Override
+            public BiFunction<UUID, @NotNull String, @NotNull QueryResult> getQuery() {
+                return topTemplate.getTopQueryManager();
+            }
+        });
     }
 
     public void onServerStop() {
@@ -141,5 +161,9 @@ public class TopperFabric implements ModInitializer {
 
     public TopperPlatform getPlatform() {
         return platform;
+    }
+
+    public QueryForward<UUID, QueryForwardContext<UUID>> getQueryForward() {
+        return queryForward;
     }
 }
