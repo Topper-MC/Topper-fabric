@@ -9,7 +9,7 @@ import java.util.Optional;
 public interface TextPlaceholderAPIHook {
     static Runnable addHook(TopperFabric mod) {
         TextPlaceholdersQueryForwarder forwarder = new TextPlaceholdersQueryForwarder();
-        mod.getTopTemplate().getQueryForward().addForwarder(forwarder);
+        mod.getQueryForward().addForwarder(forwarder);
         mod.getValueProviderManager().register(map -> {
             String placeholder = Optional.ofNullable(map.get("placeholder")).map(Object::toString).orElse("");
             return new TextPlaceholderValueProvider(placeholder)
@@ -17,7 +17,7 @@ public interface TextPlaceholderAPIHook {
                     .beforeApply(uuid -> ProfileUtil.getPlayer(TopperPlatformImpl.getInstance().getServer(), uuid));
         }, "placeholder");
         return () -> {
-            mod.getTopTemplate().getQueryForward().removeForwarder(forwarder);
+            mod.getQueryForward().removeForwarder(forwarder);
             forwarder.unregister();
         };
     }

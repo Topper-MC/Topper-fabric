@@ -14,7 +14,7 @@ public interface MiniPlaceholdersHook {
 
     static Runnable addHook(TopperFabric mod) {
         MiniPlaceholdersQueryForwarder forwarder = new MiniPlaceholdersQueryForwarder();
-        mod.getTopTemplate().getQueryForward().addForwarder(forwarder);
+        mod.getQueryForward().addForwarder(forwarder);
         mod.getValueProviderManager().register(map -> {
             String placeholder = Optional.ofNullable(map.get("placeholder")).map(Object::toString).orElse("");
             return new MiniPlaceholderValueProvider(placeholder)
@@ -22,7 +22,7 @@ public interface MiniPlaceholdersHook {
                     .beforeApply(uuid -> ProfileUtil.getPlayer(TopperPlatformImpl.getInstance().getServer(), uuid));
         }, "placeholder");
         return () -> {
-            mod.getTopTemplate().getQueryForward().removeForwarder(forwarder);
+            mod.getQueryForward().removeForwarder(forwarder);
             forwarder.unregister();
         };
     }
