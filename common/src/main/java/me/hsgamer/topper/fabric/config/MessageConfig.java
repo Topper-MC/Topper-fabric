@@ -8,7 +8,7 @@ import io.github.projectunified.craftconfig.common.Config;
 public interface MessageConfig {
     @ConfigPath("prefix")
     default String getPrefix() {
-        return "<gray>[<aqua>Topper<gray>] <reset>";
+        return "<gray>[<aqua>Topper<gray>] ";
     }
 
     @ConfigPath("success")
