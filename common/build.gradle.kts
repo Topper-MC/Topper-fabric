@@ -82,7 +82,9 @@ dependencies {
 }
 
 val moduleProjects = rootProject.subprojects.filter { it.path != project.path }
-val mcVersions = rootProject.property("mod.mc_versions").toString().split(" ").filter(String::isNotBlank)
+@Suppress("UNCHECKED_CAST")
+val mcVersions = rootProject.property("mc_versions") as List<String>
+
 val containerJar = tasks.named<Jar>("jar")
 
 tasks {

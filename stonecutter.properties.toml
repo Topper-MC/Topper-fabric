@@ -1,6 +1,7 @@
 loomx.loom_version = "1.16-SNAPSHOT"
 
 ["1.21.11"]
+mod.mc_targets = "1.21.11"
 deps.fabric_api = "0.141.2+1.21.11"
 deps.text_placeholder_api = "2.8.2+1.21.10"
 deps.permissions_api = "0.6.1"
@@ -12,6 +13,7 @@ mod.mc_title = "1.21.11"
 mod.module_id = "topper-fabric-mc1-21"
 
 ["26.1.2"]
+mod.mc_targets = "26.1 26.1.1 26.1.2"
 deps.fabric_api = "0.146.1+26.1.2"
 deps.text_placeholder_api = "3.0.0+26.1"
 deps.permissions_api = "0.7.0"
@@ -23,6 +25,7 @@ mod.mc_title = "26.1.2"
 mod.module_id = "topper-fabric-mc26-1"
 
 ["26.2"]
+mod.mc_targets = "26.2"
 deps.fabric_api = "0.152.2+26.2"
 deps.text_placeholder_api = "3.1.0-beta.1+26.2"
 deps.permissions_api = "0.7.0"
@@ -34,6 +37,7 @@ mod.mc_title = "26.2"
 mod.module_id = "topper-fabric-mc26-2"
 
 ["26.3"]
+mod.mc_targets = "26.3"
 deps.fabric_api = "0.160.7+26.3"
 deps.text_placeholder_api = "3.2.0+26.3"
 deps.permissions_api = "0.7.0"
