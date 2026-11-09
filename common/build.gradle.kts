@@ -6,7 +6,7 @@ import org.gradle.api.tasks.bundling.Jar
 plugins {
     `java-library`
     id("net.fabricmc.fabric-loom")
-    id("com.vanniktech.maven.publish") version "0.36.0"
+    id("com.vanniktech.maven.publish") version "0.37.0"
     id("me.modmuss50.mod-publish-plugin") version "1.1.0"
 }
 
