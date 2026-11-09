@@ -7,7 +7,7 @@ plugins {
     `java-library`
     id("net.fabricmc.fabric-loom")
     id("com.vanniktech.maven.publish") version "0.36.0"
-    id("me.modmuss50.mod-publish-plugin") version "1.1.0"
+    id("me.modmuss50.mod-publish-plugin") version "2.2.1"
 }
 
 group = rootProject.property("mod.group").toString()
